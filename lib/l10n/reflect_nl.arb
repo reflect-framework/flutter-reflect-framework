@@ -1,0 +1,14 @@
+{
+  "tabs": "Tabs:",
+  "@tabs": {
+    "description": "Een lijst met tabs die geselected of gesloten kunnen worden."
+  },
+  "closeOthers": "Sluit anderen",
+  "@closeOthers": {
+    "description": "Sluit andere tabs."
+  },
+  "closeAll": "Sluit alle",
+  "@closeAll": {
+    "description": "Sluit alle tabs."
+  }
+}
