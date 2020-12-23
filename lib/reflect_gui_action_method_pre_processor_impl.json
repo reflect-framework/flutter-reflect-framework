@@ -1,0 +1,4 @@
+{"path":"/reflect_framework/lib/reflect_gui_action_method_pre_processor_impl.dart","functionName":"executeDirectlyForMethodsWithoutParameter","priority":100.0}
+{"path":"/reflect_framework/lib/reflect_gui_action_method_pre_processor_impl.dart","functionName":"editDomainObjectParameterInForm","priority":102.0,"parameterType":"Object","parameterHasDomainClassAnnotation":true}
+{"path":"/reflect_framework/lib/reflect_gui_action_method_pre_processor_impl.dart","functionName":"editStringParameterInDialog","priority":103.0,"parameterType":"String"}
+{"path":"/reflect_framework/lib/reflect_gui_action_method_pre_processor_impl.dart","functionName":"executeDirectlyForMethodsWithProcessDirectlyAnnotation","priority":150.0,"requiredAnnotation":"ProcessDirectly","parameterType":"Object"}

@@ -1,6 +1,5 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' ;
 import 'package:reflect_framework/reflect_meta_action_method.dart';
-import 'package:reflect_framework/reflect_meta_domain_object.dart';
 
 /// A [ActionMethodPreProcessor] does something with [ActionMethod] parameters, for a given method parameter signature, before the [ActionMethodProcessor] is called to process the method result.
 ///
@@ -42,31 +41,4 @@ class ProcessDirectly {
   const ProcessDirectly();
 }
 
-@ActionMethodPreProcessor(100)
-void executeDirectlyForMethodsWithoutParameter(
-    ActionMethodPreProcessorContext context) {
-  context.actionMethodInfo.process(context, []);
-}
-
-@ActionMethodPreProcessor(102)
-void editDomainObjectParameterInForm(ActionMethodPreProcessorContext context,
-    @DomainClass() Object domainObject) {
-  // tabs = Provider.of<Tabs>(context.buildContext);
-  // FormTab formTab = FormTab(context, domainObject);
-  // tabs.add(formTab);
-}
-//TODO other Dart types such as int, double,num, bool, DateTime
-@ActionMethodPreProcessor(103)
-void editStringParameterInDialog(
-    ActionMethodPreProcessorContext context, String value) {
-  // tabs = Provider.of<Tabs>(context);
-  // TODO
-}
-
-@ActionMethodPreProcessor(150)
-@RequiredActionMethodAnnotation("ProcessDirectly")
-void executeDirectlyForMethodsWithProcessDirectlyAnnotation(
-    ActionMethodPreProcessorContext context, Object anyObject) {
-  context.actionMethodInfo.process(context, [anyObject]);
-}
 
