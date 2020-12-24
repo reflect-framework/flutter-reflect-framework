@@ -147,7 +147,7 @@ class ActionMethodPreProcessorInfo {
 }
 
 ///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
-List<ActionMethodPreProcessorInfo> createActionMethodPreProcessorInfos(
+List<ActionMethodPreProcessorInfo> createActionMethodPreProcessors(
     LibraryReader library) {
   List<ActionMethodPreProcessorInfo> infos = [];
   for (Element element in library.allElements) {
