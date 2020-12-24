@@ -1,18 +1,26 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:source_gen/source_gen.dart';
 
-class ActionMethodProcessorInfo {
+///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
+class ActionMethodPreProcessorInfo {
+  static const pathAttribute='path';
+  static const functionNameAttribute='functionName';
+  static const orderAttribute='order';
+  static const requiredAnnotationAttribute='requiredAnnotation';
+  static const parameterTypeAttribute='parameterType';
+  static const parameterHasDomainClassAnnotationAttribute='parameterHasDomainClassAnnotation';
+
   final String path;
   final String functionName;
-  final double priority;//TODO change to Order
+  final double order;
   final String requiredAnnotation;
   final String parameterType;
   final bool parameterHasDomainClassAnnotation;
 
-  ActionMethodProcessorInfo.fromElement(Element element)
+  ActionMethodPreProcessorInfo.fromElement(Element element)
       : path = element.source.fullName,
         functionName = element.name,
-        priority = _priority(element),
+        order = _order(element),
         requiredAnnotation = _requiredAnnotation(element),
         parameterType = _parameterType(element),
         parameterHasDomainClassAnnotation =
@@ -26,43 +34,43 @@ class ActionMethodProcessorInfo {
     if (!element.isPublic) throw Exception("Element is not public.");
     if (!_returnTypeVoid(element))
       throw Exception("Element function return type is not of type void.");
-    if (!_hasActionMethodProcessorAnnotation(element))
+    if (!_hasActionMethodPreProcessorAnnotation(element))
       throw Exception(
-          "Element function has not an ActionMethodProcessor annotation.");
+          "Element function has not an ActionMethodPreProcessor annotation.");
     if (!_firstParameterIsActionMethodPreProcessorContext(element))
       throw Exception(
-          "Element function first parameter is not of type ActionMethodProcessorContext.");
+          "Element function first parameter is not of type ActionMethodPreProcessorContext.");
     if (!_has1Or2Parameters(element))
       throw Exception(
           "Element function has no, or more then 2 parameters.");
   }
 
-  ActionMethodProcessorInfo.fromJson(Map<String, dynamic> json)
-      : path = json['path'],
-        functionName = json['functionName'],
-        priority = json['priority'],
-        requiredAnnotation = json['requiredAnnotation'],
-        parameterType = json['parameterType'],
+  ActionMethodPreProcessorInfo.fromJson(Map<String, dynamic> json)
+      : path = json[pathAttribute],
+        functionName = json[functionNameAttribute],
+        order = json[orderAttribute],
+        requiredAnnotation = json[requiredAnnotationAttribute],
+        parameterType = json[parameterTypeAttribute],
         parameterHasDomainClassAnnotation =
-        json['parameterHasDomainClassAnnotation'];
+        json[parameterHasDomainClassAnnotationAttribute];
 
   Map<String, dynamic> toJson() => {
-    'path': path,
-    'functionName': functionName,
-    'priority': priority,
+    pathAttribute: path,
+    functionNameAttribute: functionName,
+    orderAttribute: order,
     if (requiredAnnotation != null)
-      'requiredAnnotation': requiredAnnotation,
-    if (parameterType != null) 'parameterType': parameterType,
+      requiredAnnotationAttribute: requiredAnnotation,
+    if (parameterType != null) parameterTypeAttribute: parameterType,
     if (parameterHasDomainClassAnnotation)
-      'parameterHasDomainClassAnnotation': true
+      parameterHasDomainClassAnnotationAttribute: true
   };
 
   bool _returnTypeVoid(Element element) =>
       element.toString().startsWith('void ');
 
-  bool _hasActionMethodProcessorAnnotation(Element element) =>
+  bool _hasActionMethodPreProcessorAnnotation(Element element) =>
       element.metadata.toString().contains(
-          '@ActionMethodProcessor* ActionMethodProcessor(double* priority)');
+          '@ActionMethodPreProcessor* ActionMethodPreProcessor(double* priority)');
 
   bool _firstParameterIsActionMethodPreProcessorContext(Element element) {
     if (element is FunctionElement) {
@@ -85,9 +93,9 @@ class ActionMethodProcessorInfo {
   }
 
 
-  static double _priority(Element element) {
+  static double _order(Element element) {
     for (ElementAnnotation e in element.metadata) {
-      if (e.toString().startsWith('@ActionMethodProcessor')) {
+      if (e.toString().startsWith('@ActionMethodPreProcessor')) {
         var dartObject = e.computeConstantValue();
         ConstantReader reader = ConstantReader(dartObject);
         return reader.peek('priority').doubleValue;
@@ -138,17 +146,17 @@ class ActionMethodProcessorInfo {
 
 }
 
-
-List<ActionMethodProcessorInfo> createActionMethodProcessorInfos(
+///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
+List<ActionMethodPreProcessorInfo> createActionMethodPreProcessorInfos(
     LibraryReader library) {
-  List<ActionMethodProcessorInfo> infos = [];
+  List<ActionMethodPreProcessorInfo> infos = [];
   for (Element element in library.allElements) {
     try {
-      ActionMethodProcessorInfo info =
-      ActionMethodProcessorInfo.fromElement(element);
+      ActionMethodPreProcessorInfo info =
+      ActionMethodPreProcessorInfo.fromElement(element);
       infos.add(info);
     } on Exception {
-      // not a problem: not all elements are an ActionMethodProcessor function.
+      // not a problem: not all elements are an ActionMethodPreProcessor function.
     }
   }
   return infos;

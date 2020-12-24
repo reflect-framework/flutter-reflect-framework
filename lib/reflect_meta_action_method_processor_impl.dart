@@ -1,5 +1,5 @@
-import 'package:reflect_framework/reflect_gui_action_method_pre_processor.dart';
-import 'package:reflect_framework/reflect_gui_action_method_processor.dart';
+import 'package:reflect_framework/reflect_meta_action_method_pre_processor.dart';
+import 'package:reflect_framework/reflect_meta_action_method_processor.dart';
 import 'package:reflect_framework/reflect_meta_domain_object.dart';
 
 @ActionMethodProcessor(100)

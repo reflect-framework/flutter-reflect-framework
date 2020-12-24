@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:build/build.dart';
-import 'package:reflect_framework/reflect_gui_action_method_pre_processor_info.dart';
-import 'package:reflect_framework/reflect_gui_action_method_processor_info.dart';
+import 'package:reflect_framework/reflect_meta_action_method_pre_processor_info.dart';
+import 'package:reflect_framework/reflect_meta_action_method_processor_info.dart';
 import 'package:source_gen/source_gen.dart';
 
+///Uses [ReflectInfo] to create json files with meta data from source files using the source_gen package
 class ReflectInfoJsonBuilder implements Builder {
   @override
   Map<String, List<String>> get buildExtensions => {
@@ -28,6 +29,7 @@ class ReflectInfoJsonBuilder implements Builder {
   }
 }
 
+///Used by the [ReflectInfoJsonBuilder] to create json files with meta data from source files using the source_gen package
 class ReflectInfo {
 
   final List<ActionMethodPreProcessorInfo> actionMethodPreProcessorInfos;

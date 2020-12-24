@@ -43,7 +43,10 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 flutter:
-  generate: true
+  # TODO: Needed for l10n:    generate: true
+  # but this breaks build_runner, see: https://github.com/dart-lang/build/issues/2835
+
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

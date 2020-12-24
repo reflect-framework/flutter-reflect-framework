@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/reflect_localizations.dart'; // Add this line
 import 'package:provider/provider.dart';
 import 'package:reflect_framework/reflect_gui_tab.dart' as ReflectTabs;
 import 'package:reflect_framework/reflect_gui_tab.dart';
+import 'package:reflect_framework/reflect_localizations.dart';
 import 'package:reflect_framework/reflect_meta_temp.dart';
 import 'package:reflect_framework/reflect_application.dart';
 

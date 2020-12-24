@@ -1,4 +1,4 @@
-import 'package:reflect_framework/reflect_gui_action_method_pre_processor.dart';
+import 'package:reflect_framework/reflect_meta_action_method_pre_processor.dart';
 
 /// A [ActionMethodProcessor] processed the [ActionMethod] results (e.g. displays the results to the user or sends back an reply)
 ///
