@@ -39,7 +39,8 @@ class ReflectInfo {
   final List<ActionMethodPreProcessorInfo> actionMethodPreProcessors;
   final List<ActionMethodProcessorInfo> actionMethodProcessors;
   final List<ClassInfo> classes;
-
+  //TODO functions (ending with factory in name, when needed for serviceobjects)
+  //TODO add enums (with texts)
   //TODO add reflect texts
 
   ReflectInfo.fromLibrary(LibraryReader library)

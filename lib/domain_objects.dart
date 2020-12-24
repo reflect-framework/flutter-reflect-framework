@@ -1,3 +1,4 @@
+import 'package:reflect_framework/reflect_meta_service_object.dart';
 
 class Payment {
   Address address;
@@ -34,17 +35,28 @@ class Address {
   }
 }
 
-// @ServiceClass()
-// class PersonService() {
-//
-// }
+@ServiceClass()
+class PersonService {
+
+  List<Person> allPersons() {
+    return [
+      Person("James", "Gosling"),
+      Person("Eric", "Evans"),
+      Person("Martin", "Fowler"),
+      Person("Richard", "Pawson"),
+      Person("Nils", "ten Hoeve")
+    ];
+  }
+}
 
 class Person {
   String givenName;
   String surName;
 
+  Person(this.givenName, this.surName);
+
   String get fullName {
-    return givenName??"" + " "+surName??"".trim();
-}
+    return givenName ?? "" + " " + surName ?? "".trim();
+  }
 
 }
