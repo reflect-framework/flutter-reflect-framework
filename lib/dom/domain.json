@@ -30,7 +30,10 @@
                },
                "annotations": [
                     {
-                         "name": "ServiceClass"
+                         "type": {
+                              "library": "/reflect_framework/lib/reflect_meta_service_object.dart",
+                              "name": "ServiceClass"
+                         }
                     }
                ],
                "methods": [

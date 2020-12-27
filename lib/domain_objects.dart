@@ -1,4 +1,3 @@
-import 'package:reflect_framework/reflect_meta_action_method_pre_processor.dart';
 import 'package:reflect_framework/reflect_meta_service_object.dart';
 
 class Payment {
@@ -36,7 +35,6 @@ class Address {
   }
 }
 
-@ActionMethodPreProcessor(12)
 @ServiceClass()
 class PersonService {
 

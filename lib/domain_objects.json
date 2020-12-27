@@ -85,13 +85,10 @@
                },
                "annotations": [
                     {
-                         "name": "ActionMethodPreProcessor",
-                         "values": {
-                              "order": 12.0
+                         "type": {
+                              "library": "/reflect_framework/lib/reflect_meta_service_object.dart",
+                              "name": "ServiceClass"
                          }
-                    },
-                    {
-                         "name": "ServiceClass"
                     }
                ],
                "methods": [

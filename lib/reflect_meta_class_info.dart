@@ -1,27 +1,7 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:source_gen/source_gen.dart';
 
-class TypeInfo {
-  static const libraryAttribute = 'library';
-  static const nameAttribute = 'name';
 
-  final String library;
-  final String name;
-
-  TypeInfo.fromElement(Element element)
-      : library = element.source.fullName,
-        name = element.name;
-
-  TypeInfo.fromJson(Map<String, dynamic> json)
-      : library = json[libraryAttribute],
-        name = json[nameAttribute];
-
-  Map<String, dynamic> toJson() =>
-      {
-        libraryAttribute: library,
-        nameAttribute: name,
-      };
-}
 
 ///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
 class ClassInfo {
@@ -77,31 +57,53 @@ List<ClassInfo> createClasses(LibraryReader library) {
   return classes;
 }
 
-class AnnotationInfo {
+class TypeInfo {
+  static const libraryAttribute = 'library';
   static const nameAttribute = 'name';
+
+  final String library;
+  final String name;
+
+  TypeInfo.fromElement(Element element)
+      : library = element.source.fullName,
+        name = element.name;
+
+  TypeInfo.fromJson(Map<String, dynamic> json)
+      : library = json[libraryAttribute],
+        name = json[nameAttribute];
+
+  Map<String, dynamic> toJson() =>
+      {
+        libraryAttribute: library,
+        nameAttribute: name,
+      };
+}
+
+class AnnotationInfo {
+  static const typeAttribute = 'type';
   static const valuesAttribute = 'values';
 
-  final String name;
+  final TypeInfo type;
   final Map<String, Object> values;
 
   AnnotationInfo.fromElement(ElementAnnotation annotationElement)
-      : name = _name(annotationElement),
+      : type = TypeInfo.fromElement(annotationElement.computeConstantValue().type.element),
         values = _values(annotationElement);
 
   AnnotationInfo.fromJson(Map<String, dynamic> json)
-      : name = json[nameAttribute],
+      : type = json[typeAttribute],
         values = json[valuesAttribute];
 
   Map<String, dynamic> toJson() =>
-      {nameAttribute: name, if (values.isNotEmpty) valuesAttribute: values};
+      {typeAttribute: type, if (values.isNotEmpty) valuesAttribute: values};
 
-  static _name(ElementAnnotation annotationElement) {
-    return annotationElement
-        .computeConstantValue()
-        .type
-        .element
-        .name;
-  }
+  // static _name(ElementAnnotation annotationElement) {
+  //   return annotationElement
+  //       .computeConstantValue()
+  //       .type
+  //       .element
+  //       .name;
+  // }
 
   static Map<String, Object> _values(ElementAnnotation annotationElement) {
     List<ParameterElement> parameters =
