@@ -14,12 +14,12 @@ import 'package:reflect_framework/reflect_meta_action_method.dart';
 /// See the annotated functions in this file for the default implementations and inspiration.
 
 class ActionMethodPreProcessor {
-  /// A number to set the priority compared to other [ActionParameterAction]s.
+  /// A number to set the order compared to other [ActionParameterAction]s.
   /// This becomes important if multiple [ActionParameterAction]s handle the same [Type]s and annotations
   /// A double is used so that there are endless numbers to put between to existing numbers.
-  final double priority;
+  final double order;
 
-  const ActionMethodPreProcessor(this.priority);
+  const ActionMethodPreProcessor(this.order);
 }
 
 class ActionMethodPreProcessorContext {

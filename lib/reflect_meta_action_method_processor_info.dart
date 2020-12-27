@@ -29,7 +29,7 @@ class ActionMethodProcessorInfo {
     validate(element);
   }
 
-  void validate(Element element) {
+  void validate(Element element) {//TODO make static bool isNeeded() and move from constructor to factory
     if (element.kind != ElementKind.FUNCTION)
       throw Exception("Element is not a function.");
     if (!element.isPublic) throw Exception("Element is not public.");
@@ -70,7 +70,7 @@ class ActionMethodProcessorInfo {
 
   bool _hasActionMethodProcessorAnnotation(Element element) =>
       element.metadata.toString().contains(
-          '@ActionMethodProcessor* ActionMethodProcessor(double* priority)');
+          '@ActionMethodProcessor');
 
   bool _firstParameterIsActionMethodPreProcessorContext(Element element) {
     if (element is FunctionElement) {
@@ -97,7 +97,7 @@ class ActionMethodProcessorInfo {
       if (e.toString().startsWith('@ActionMethodProcessor')) {
         var dartObject = e.computeConstantValue();
         ConstantReader reader = ConstantReader(dartObject);
-        return reader.peek('priority').doubleValue;
+        return reader.peek('order').doubleValue;
       }
     }
     final defaultWhenNotFound = 200.0;

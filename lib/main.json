@@ -1,1 +1,16 @@
-{"classes":[{"path":"/reflect_framework/lib/main.dart","name":"MyApp","propertyAccessors":[{"name":"lightTheme"},{"name":"darkTheme"}]}]}
+{
+     "classes": [
+          {
+               "path": "/reflect_framework/lib/main.dart",
+               "name": "MyApp",
+               "propertyAccessors": [
+                    {
+                         "name": "lightTheme"
+                    },
+                    {
+                         "name": "darkTheme"
+                    }
+               ]
+          }
+     ]
+}

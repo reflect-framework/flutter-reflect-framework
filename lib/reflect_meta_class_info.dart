@@ -1,4 +1,3 @@
-
 import 'package:analyzer/dart/element/element.dart';
 import 'package:source_gen/source_gen.dart';
 
@@ -62,18 +61,37 @@ List<ClassInfo> createClasses(LibraryReader library) {
 
 class AnnotationInfo {
   static const nameAttribute = 'name';
+  static const valuesAttribute = 'values';
 
   final String name;
+  final Map<String, Object> values;
 
-  AnnotationInfo.fromElement(ElementAnnotation annotationElement) :
-      name=annotationElement.toString();
+  AnnotationInfo.fromElement(ElementAnnotation annotationElement)
+      : name = _name(annotationElement),
+        values = _values(annotationElement);
 
   AnnotationInfo.fromJson(Map<String, dynamic> json)
-      : name = json[nameAttribute];
+      : name = json[nameAttribute],
+        values = json[valuesAttribute];
 
-  Map<String, dynamic> toJson() => {
-    nameAttribute: name,
-  };
+  Map<String, dynamic> toJson() =>
+      {nameAttribute: name, if (values.isNotEmpty) valuesAttribute: values};
+
+  static _name(ElementAnnotation annotationElement) {
+    return annotationElement.computeConstantValue().type.element.name;
+  }
+
+  static Map<String, Object> _values(ElementAnnotation annotationElement) {
+    List<ParameterElement> parameters =
+        (annotationElement.element as ConstructorElement).parameters;
+    var dartObject = annotationElement.computeConstantValue();
+    ConstantReader reader = ConstantReader(dartObject);
+
+    return {
+      for (ParameterElement parameter in parameters)
+        parameter.name: reader.peek(parameter.name).literalValue,
+    };
+  }
 }
 
 List<AnnotationInfo> _createAnnotations(Element element) {
@@ -81,8 +99,8 @@ List<AnnotationInfo> _createAnnotations(Element element) {
   if (element is ClassElement) {
     List<ElementAnnotation> annotationElements = element.metadata;
     for (ElementAnnotation annotationElement in annotationElements) {
-        AnnotationInfo annotation = AnnotationInfo.fromElement(annotationElement);
-        annotations.add(annotation);
+      AnnotationInfo annotation = AnnotationInfo.fromElement(annotationElement);
+      annotations.add(annotation);
     }
   }
   return annotations;
@@ -93,14 +111,14 @@ class MethodInfo {
 
   final String name;
 
-  MethodInfo.fromElement(MethodElement methodElement): name=methodElement.name;
+  MethodInfo.fromElement(MethodElement methodElement)
+      : name = methodElement.name;
 
-  MethodInfo.fromJson(Map<String, dynamic> json)
-      : name = json[nameAttribute];
+  MethodInfo.fromJson(Map<String, dynamic> json) : name = json[nameAttribute];
 
   Map<String, dynamic> toJson() => {
-    nameAttribute: name,
-  };
+        nameAttribute: name,
+      };
 
   static bool isNeeded(MethodElement methodElement) {
     if (methodElement.isPrivate) {
@@ -129,14 +147,16 @@ class PropertyAccessorInfo {
 
   final String name;
 
-  PropertyAccessorInfo.fromElement(PropertyAccessorElement propertyAccessorElement): name=propertyAccessorElement.name;
+  PropertyAccessorInfo.fromElement(
+      PropertyAccessorElement propertyAccessorElement)
+      : name = propertyAccessorElement.name;
 
   PropertyAccessorInfo.fromJson(Map<String, dynamic> json)
       : name = json[nameAttribute];
 
   Map<String, dynamic> toJson() => {
-    nameAttribute: name,
-  };
+        nameAttribute: name,
+      };
 
   static bool isNeeded(PropertyAccessorElement propertyAccessorElement) {
     if (propertyAccessorElement.isPrivate) {
@@ -151,10 +171,10 @@ List<PropertyAccessorInfo> _createPropertyAccessor(Element element) {
   if (element is ClassElement) {
     List<PropertyAccessorElement> propertyAccessorElements = element.accessors;
     for (PropertyAccessorElement propertyAccessorElement
-    in propertyAccessorElements) {
+        in propertyAccessorElements) {
       if (PropertyAccessorInfo.isNeeded(propertyAccessorElement)) {
         PropertyAccessorInfo propertyAccessor =
-        PropertyAccessorInfo.fromElement(propertyAccessorElement);
+            PropertyAccessorInfo.fromElement(propertyAccessorElement);
         propertyAccessors.add(propertyAccessor);
       }
     }

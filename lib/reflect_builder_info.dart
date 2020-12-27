@@ -25,8 +25,12 @@ class ReflectInfoJsonBuilder implements Builder {
 
     ReflectInfo reflectInfo = ReflectInfo.fromLibrary(lib);
 
-    if (reflectInfo.toJson().isNotEmpty)
-      buildStep.writeAsString(destination, jsonEncode(reflectInfo));
+    if (reflectInfo.toJson().isNotEmpty) {
+      var encoder = new JsonEncoder.withIndent("     ");
+      String formattedJson = encoder.convert(reflectInfo);
+      //TODO normally we use jsonEncode(reflectInfo)
+      buildStep.writeAsString(destination, formattedJson);
+    }
   }
 }
 
