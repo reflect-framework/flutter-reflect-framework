@@ -1,8 +1,10 @@
 {
      "classes": [
           {
-               "path": "/reflect_framework/lib/main.dart",
-               "name": "MyApp",
+               "type": {
+                    "library": "/reflect_framework/lib/main.dart",
+                    "name": "MyApp"
+               },
                "propertyAccessors": [
                     {
                          "name": "lightTheme"

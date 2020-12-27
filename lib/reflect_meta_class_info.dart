@@ -1,26 +1,39 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:source_gen/source_gen.dart';
 
+class TypeInfo {
+  static const libraryAttribute = 'library';
+  static const nameAttribute = 'name';
+
+  final String library;
+  final String name;
+
+  TypeInfo.fromElement(Element element)
+      : library = element.source.fullName,
+        name = element.name;
+
+  TypeInfo.fromJson(Map<String, dynamic> json)
+      : library = json[libraryAttribute],
+        name = json[nameAttribute];
+
+  Map<String, dynamic> toJson() =>
+      {
+        libraryAttribute: library,
+        nameAttribute: name,
+      };
+}
+
 ///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
 class ClassInfo {
-  static const pathAttribute = 'path';
-  static const nameAttribute = 'name';
+  static const typeAttribute = 'type';
   static const annotationsAttribute = 'annotations';
   static const methodsAttribute = 'methods';
   static const propertyAccessorAttribute = 'propertyAccessors';
 
-  final String path;
-  final String name;
+  final TypeInfo type;
   final List<AnnotationInfo> annotations;
   final List<MethodInfo> methods;
   final List<PropertyAccessorInfo> propertyAccessors;
-
-  ClassInfo.fromElement(Element element)
-      : path = element.source.fullName,
-        name = element.name,
-        annotations = _createAnnotations(element),
-        methods = _createMethods(element),
-        propertyAccessors = _createPropertyAccessor(element);
 
   static bool isNeeded(ClassElement element) {
     if (!element.isPublic) return false;
@@ -30,16 +43,21 @@ class ClassInfo {
     return true;
   }
 
+  ClassInfo.fromElement(Element element)
+      : type = TypeInfo.fromElement(element),
+        annotations = _createAnnotations(element),
+        methods = _createMethods(element),
+        propertyAccessors = _createPropertyAccessor(element);
+
   ClassInfo.fromJson(Map<String, dynamic> json)
-      : path = json[pathAttribute],
-        name = json[nameAttribute],
+      : type = json[typeAttribute],
         annotations = json[annotationsAttribute],
         methods = json[methodsAttribute],
         propertyAccessors = json[propertyAccessorAttribute];
 
-  Map<String, dynamic> toJson() => {
-        pathAttribute: path,
-        nameAttribute: name,
+  Map<String, dynamic> toJson() =>
+      {
+        typeAttribute: type,
         if (annotations.isNotEmpty) annotationsAttribute: annotations,
         if (methods.isNotEmpty) methodsAttribute: methods,
         if (propertyAccessors.isNotEmpty)
@@ -78,7 +96,11 @@ class AnnotationInfo {
       {nameAttribute: name, if (values.isNotEmpty) valuesAttribute: values};
 
   static _name(ElementAnnotation annotationElement) {
-    return annotationElement.computeConstantValue().type.element.name;
+    return annotationElement
+        .computeConstantValue()
+        .type
+        .element
+        .name;
   }
 
   static Map<String, Object> _values(ElementAnnotation annotationElement) {
@@ -89,7 +111,9 @@ class AnnotationInfo {
 
     return {
       for (ParameterElement parameter in parameters)
-        parameter.name: reader.peek(parameter.name).literalValue,
+        parameter.name: reader
+            .peek(parameter.name)
+            .literalValue,
     };
   }
 }
@@ -116,7 +140,8 @@ class MethodInfo {
 
   MethodInfo.fromJson(Map<String, dynamic> json) : name = json[nameAttribute];
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() =>
+      {
         nameAttribute: name,
       };
 
@@ -154,7 +179,8 @@ class PropertyAccessorInfo {
   PropertyAccessorInfo.fromJson(Map<String, dynamic> json)
       : name = json[nameAttribute];
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() =>
+      {
         nameAttribute: name,
       };
 
@@ -171,10 +197,10 @@ List<PropertyAccessorInfo> _createPropertyAccessor(Element element) {
   if (element is ClassElement) {
     List<PropertyAccessorElement> propertyAccessorElements = element.accessors;
     for (PropertyAccessorElement propertyAccessorElement
-        in propertyAccessorElements) {
+    in propertyAccessorElements) {
       if (PropertyAccessorInfo.isNeeded(propertyAccessorElement)) {
         PropertyAccessorInfo propertyAccessor =
-            PropertyAccessorInfo.fromElement(propertyAccessorElement);
+        PropertyAccessorInfo.fromElement(propertyAccessorElement);
         propertyAccessors.add(propertyAccessor);
       }
     }

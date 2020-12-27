@@ -1,8 +1,10 @@
 {
      "classes": [
           {
-               "path": "/reflect_framework/lib/domain_objects.dart",
-               "name": "Payment",
+               "type": {
+                    "library": "/reflect_framework/lib/domain_objects.dart",
+                    "name": "Payment"
+               },
                "propertyAccessors": [
                     {
                          "name": "address"
@@ -19,8 +21,10 @@
                ]
           },
           {
-               "path": "/reflect_framework/lib/domain_objects.dart",
-               "name": "CardDetails",
+               "type": {
+                    "library": "/reflect_framework/lib/domain_objects.dart",
+                    "name": "CardDetails"
+               },
                "propertyAccessors": [
                     {
                          "name": "cardHolderName"
@@ -55,8 +59,10 @@
                ]
           },
           {
-               "path": "/reflect_framework/lib/domain_objects.dart",
-               "name": "Address",
+               "type": {
+                    "library": "/reflect_framework/lib/domain_objects.dart",
+                    "name": "Address"
+               },
                "propertyAccessors": [
                     {
                          "name": "postCode"
@@ -73,8 +79,10 @@
                ]
           },
           {
-               "path": "/reflect_framework/lib/domain_objects.dart",
-               "name": "PersonService",
+               "type": {
+                    "library": "/reflect_framework/lib/domain_objects.dart",
+                    "name": "PersonService"
+               },
                "annotations": [
                     {
                          "name": "ActionMethodPreProcessor",
@@ -93,8 +101,10 @@
                ]
           },
           {
-               "path": "/reflect_framework/lib/domain_objects.dart",
-               "name": "Person",
+               "type": {
+                    "library": "/reflect_framework/lib/domain_objects.dart",
+                    "name": "Person"
+               },
                "propertyAccessors": [
                     {
                          "name": "givenName"
