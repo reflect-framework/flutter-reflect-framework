@@ -18,6 +18,17 @@ class ActionMethodProcessorInfo {
   final String parameterType;
   final bool parameterHasDomainClassAnnotation;
 
+  static bool isNeeded(Element element) {
+    if (element.kind != ElementKind.FUNCTION) return false;
+    if (!element.isPublic) return false;
+    if (!_returnTypeVoid(element)) return false;
+    if (!_hasActionMethodProcessorAnnotation(element)) return false;
+    if (!_firstParameterIsActionMethodPreProcessorContext(element))
+      return false;
+    if (!_has1Or2Parameters(element)) return false;
+    return true;
+  }
+
   ActionMethodProcessorInfo.fromElement(Element element)
       : path = element.source.fullName,
         functionName = element.name,
@@ -26,23 +37,7 @@ class ActionMethodProcessorInfo {
         parameterType = _parameterType(element),
         parameterHasDomainClassAnnotation =
             _parameterHasDomainClassAnnotation(element) {
-    validate(element);
-  }
-
-  void validate(Element element) {//TODO make static bool isNeeded() and move from constructor to factory
-    if (element.kind != ElementKind.FUNCTION)
-      throw Exception("Element is not a function.");
-    if (!element.isPublic) throw Exception("Element is not public.");
-    if (!_returnTypeVoid(element))
-      throw Exception("Element function return type is not of type void.");
-    if (!_hasActionMethodProcessorAnnotation(element))
-      throw Exception(
-          "Element function has not an ActionMethodProcessor annotation.");
-    if (!_firstParameterIsActionMethodPreProcessorContext(element))
-      throw Exception(
-          "Element function first parameter is not of type ActionMethodProcessorContext.");
-    if (!_has1Or2Parameters(element))
-      throw Exception("Element function has no, or more then 2 parameters.");
+    isNeeded(element);
   }
 
   ActionMethodProcessorInfo.fromJson(Map<String, dynamic> json)
@@ -65,14 +60,14 @@ class ActionMethodProcessorInfo {
           parameterHasDomainClassAnnotationAttribute: true
       };
 
-  bool _returnTypeVoid(Element element) =>
+  static bool _returnTypeVoid(Element element) =>
       element.toString().startsWith('void ');
 
-  bool _hasActionMethodProcessorAnnotation(Element element) =>
-      element.metadata.toString().contains(
-          '@ActionMethodProcessor');
+  static bool _hasActionMethodProcessorAnnotation(Element element) =>
+      element.metadata.toString().contains('@ActionMethodProcessor');
 
-  bool _firstParameterIsActionMethodPreProcessorContext(Element element) {
+  static bool _firstParameterIsActionMethodPreProcessorContext(
+      Element element) {
     if (element is FunctionElement) {
       List<ParameterElement> parameters = element.parameters;
       if (parameters.isEmpty) {
@@ -84,7 +79,7 @@ class ActionMethodProcessorInfo {
     return false;
   }
 
-  bool _has1Or2Parameters(Element element) {
+  static bool _has1Or2Parameters(Element element) {
     if (element is FunctionElement) {
       List<ParameterElement> parameters = element.parameters;
       return parameters.length >= 1 && parameters.length <= 2;
@@ -147,15 +142,13 @@ class ActionMethodProcessorInfo {
 ///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
 List<ActionMethodProcessorInfo> createActionMethodProcessors(
     LibraryReader library) {
-  List<ActionMethodProcessorInfo> infos = [];
+  List<ActionMethodProcessorInfo> actionMethodProcessors = [];
   for (Element element in library.allElements) {
-    try {
+    if (ActionMethodProcessorInfo.isNeeded(element)) {
       ActionMethodProcessorInfo info =
           ActionMethodProcessorInfo.fromElement(element);
-      infos.add(info);
-    } on Exception {
-      // not a problem: not all elements are an ActionMethodProcessor function.
+      actionMethodProcessors.add(info);
     }
   }
-  return infos;
+  return actionMethodProcessors;
 }

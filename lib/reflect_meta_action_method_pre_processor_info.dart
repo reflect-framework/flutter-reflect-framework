@@ -3,12 +3,13 @@ import 'package:source_gen/source_gen.dart';
 
 ///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
 class ActionMethodPreProcessorInfo {
-  static const pathAttribute='path';
-  static const functionNameAttribute='functionName';
-  static const orderAttribute='order';
-  static const requiredAnnotationAttribute='requiredAnnotation';
-  static const parameterTypeAttribute='parameterType';
-  static const parameterHasDomainClassAnnotationAttribute='parameterHasDomainClassAnnotation';
+  static const pathAttribute = 'path';
+  static const functionNameAttribute = 'functionName';
+  static const orderAttribute = 'order';
+  static const requiredAnnotationAttribute = 'requiredAnnotation';
+  static const parameterTypeAttribute = 'parameterType';
+  static const parameterHasDomainClassAnnotationAttribute =
+      'parameterHasDomainClassAnnotation';
 
   final String path;
   final String functionName;
@@ -17,6 +18,17 @@ class ActionMethodPreProcessorInfo {
   final String parameterType;
   final bool parameterHasDomainClassAnnotation;
 
+  static bool isNeeded(Element element) {
+    if (element.kind != ElementKind.FUNCTION) return false;
+    if (!element.isPublic) return false;
+    if (!_returnTypeVoid(element)) return false;
+    if (!_hasActionMethodPreProcessorAnnotation(element)) return false;
+    if (!_firstParameterIsActionMethodPreProcessorContext(element))
+      return false;
+    if (!_has1Or2Parameters(element)) return false;
+    return true;
+  }
+
   ActionMethodPreProcessorInfo.fromElement(Element element)
       : path = element.source.fullName,
         functionName = element.name,
@@ -24,26 +36,7 @@ class ActionMethodPreProcessorInfo {
         requiredAnnotation = _requiredAnnotation(element),
         parameterType = _parameterType(element),
         parameterHasDomainClassAnnotation =
-        _parameterHasDomainClassAnnotation(element) {
-    validate(element);
-  }
-
-  void validate(Element element) { //TODO make static bool isNeeded() and move from constructor to factory
-    if (element.kind != ElementKind.FUNCTION)
-      throw Exception("Element is not a function.");
-    if (!element.isPublic) throw Exception("Element is not public.");
-    if (!_returnTypeVoid(element))
-      throw Exception("Element function return type is not of type void.");
-    if (!_hasActionMethodPreProcessorAnnotation(element))
-      throw Exception(
-          "Element function has not an ActionMethodPreProcessor annotation.");
-    if (!_firstParameterIsActionMethodPreProcessorContext(element))
-      throw Exception(
-          "Element function first parameter is not of type ActionMethodPreProcessorContext.");
-    if (!_has1Or2Parameters(element))
-      throw Exception(
-          "Element function has no, or more then 2 parameters.");
-  }
+            _parameterHasDomainClassAnnotation(element);
 
   ActionMethodPreProcessorInfo.fromJson(Map<String, dynamic> json)
       : path = json[pathAttribute],
@@ -52,27 +45,27 @@ class ActionMethodPreProcessorInfo {
         requiredAnnotation = json[requiredAnnotationAttribute],
         parameterType = json[parameterTypeAttribute],
         parameterHasDomainClassAnnotation =
-        json[parameterHasDomainClassAnnotationAttribute];
+            json[parameterHasDomainClassAnnotationAttribute];
 
   Map<String, dynamic> toJson() => {
-    pathAttribute: path,
-    functionNameAttribute: functionName,
-    orderAttribute: order,
-    if (requiredAnnotation != null)
-      requiredAnnotationAttribute: requiredAnnotation,
-    if (parameterType != null) parameterTypeAttribute: parameterType,
-    if (parameterHasDomainClassAnnotation)
-      parameterHasDomainClassAnnotationAttribute: true
-  };
+        pathAttribute: path,
+        functionNameAttribute: functionName,
+        orderAttribute: order,
+        if (requiredAnnotation != null)
+          requiredAnnotationAttribute: requiredAnnotation,
+        if (parameterType != null) parameterTypeAttribute: parameterType,
+        if (parameterHasDomainClassAnnotation)
+          parameterHasDomainClassAnnotationAttribute: true
+      };
 
-  bool _returnTypeVoid(Element element) =>
+  static bool _returnTypeVoid(Element element) =>
       element.toString().startsWith('void ');
 
-  bool _hasActionMethodPreProcessorAnnotation(Element element) =>
-      element.metadata.toString().contains(
-          '@ActionMethodPreProcessor');
+  static bool _hasActionMethodPreProcessorAnnotation(Element element) =>
+      element.metadata.toString().contains('@ActionMethodPreProcessor');
 
-  bool _firstParameterIsActionMethodPreProcessorContext(Element element) {
+  static bool _firstParameterIsActionMethodPreProcessorContext(
+      Element element) {
     if (element is FunctionElement) {
       List<ParameterElement> parameters = element.parameters;
       if (parameters.isEmpty) {
@@ -84,14 +77,13 @@ class ActionMethodPreProcessorInfo {
     return false;
   }
 
-  bool _has1Or2Parameters(Element element) {
+  static bool _has1Or2Parameters(Element element) {
     if (element is FunctionElement) {
       List<ParameterElement> parameters = element.parameters;
-      return parameters.length>=1 && parameters.length<=2;
+      return parameters.length >= 1 && parameters.length <= 2;
     }
     return false;
   }
-
 
   static double _order(Element element) {
     for (ElementAnnotation e in element.metadata) {
@@ -143,21 +135,18 @@ class ActionMethodPreProcessorInfo {
     }
     return false;
   }
-
 }
 
 ///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
 List<ActionMethodPreProcessorInfo> createActionMethodPreProcessors(
     LibraryReader library) {
-  List<ActionMethodPreProcessorInfo> infos = [];
+  List<ActionMethodPreProcessorInfo> actionMethodPreProcessors = [];
   for (Element element in library.allElements) {
-    try {
+    if (ActionMethodPreProcessorInfo.isNeeded(element)) {
       ActionMethodPreProcessorInfo info =
-      ActionMethodPreProcessorInfo.fromElement(element);
-      infos.add(info);
-    } on Exception {
-      // not a problem: not all elements are an ActionMethodPreProcessor function.
+          ActionMethodPreProcessorInfo.fromElement(element);
+      actionMethodPreProcessors.add(info);
     }
   }
-  return infos;
+  return actionMethodPreProcessors;
 }
