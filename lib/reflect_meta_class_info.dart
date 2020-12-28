@@ -33,8 +33,7 @@ class ClassInfo {
         methods = json[methodsAttribute],
         properties = json[propertiesAttribute];
 
-  Map<String, dynamic> toJson() =>
-      {
+  Map<String, dynamic> toJson() => {
         typeAttribute: type,
         if (annotations.isNotEmpty) annotationsAttribute: annotations,
         if (methods.isNotEmpty) methodsAttribute: methods,
@@ -73,14 +72,13 @@ class TypeInfo {
 //
 //       }
 //     }
-      ;
+  ;
 
   TypeInfo.fromJson(Map<String, dynamic> json)
       : library = json[libraryAttribute],
         name = json[nameAttribute];
 
-  Map<String, dynamic> toJson() =>
-      {
+  Map<String, dynamic> toJson() => {
         libraryAttribute: library,
         nameAttribute: name,
       };
@@ -95,10 +93,7 @@ class AnnotationInfo {
 
   AnnotationInfo.fromElement(ElementAnnotation annotationElement)
       : type = TypeInfo.fromElement(
-      annotationElement
-          .computeConstantValue()
-          .type
-          .element),
+            annotationElement.computeConstantValue().type.element),
         values = _values(annotationElement);
 
   AnnotationInfo.fromJson(Map<String, dynamic> json)
@@ -116,9 +111,7 @@ class AnnotationInfo {
       ConstantReader reader = ConstantReader(dartObject);
       return {
         for (ParameterElement parameter in parameters)
-          parameter.name: reader
-              .peek(parameter.name)
-              .literalValue,
+          parameter.name: reader.peek(parameter.name).literalValue,
       };
     } catch (e) {
       return const {};
@@ -128,13 +121,11 @@ class AnnotationInfo {
 
 List<AnnotationInfo> _createAnnotations(Element element) {
   List<AnnotationInfo> annotations = [];
-  // if (element is ClassElement) {
   List<ElementAnnotation> annotationElements = element.metadata;
   for (ElementAnnotation annotationElement in annotationElements) {
     AnnotationInfo annotation = AnnotationInfo.fromElement(annotationElement);
     annotations.add(annotation);
   }
-  // }
   return annotations;
 }
 
@@ -150,15 +141,14 @@ class MethodInfo {
   MethodInfo.fromElement(MethodElement methodElement)
       : name = methodElement.name,
         returnType = TypeInfo.fromElement(methodElement.returnType.element),
-        annotations=_createAnnotations(methodElement);
+        annotations = _createAnnotations(methodElement);
 
   MethodInfo.fromJson(Map<String, dynamic> json)
       : name = json[nameAttribute],
         returnType = json[returnTypeAttribute],
-        annotations=json[annotationsAttribute];
+        annotations = json[annotationsAttribute];
 
-  Map<String, dynamic> toJson() =>
-      {
+  Map<String, dynamic> toJson() => {
         nameAttribute: name,
         returnTypeAttribute: returnType,
         annotationsAttribute: annotations
@@ -199,11 +189,11 @@ class PropertyInfo {
   final bool hasSetter;
   final List<AnnotationInfo> annotations;
 
-  PropertyInfo.fromElement(PropertyAccessorElement propertyAccessorElement,
-      this.hasSetter)
+  PropertyInfo.fromElements(PropertyAccessorElement propertyAccessorElement,
+      this.hasSetter, FieldElement fieldElement)
       : name = propertyAccessorElement.name,
         type = TypeInfo.fromElement(propertyAccessorElement.returnType.element),
-        annotations = _createAnnotations(propertyAccessorElement);
+        annotations = _createAnnotations2(propertyAccessorElement,fieldElement);
 
   PropertyInfo.fromJson(Map<String, dynamic> json)
       : name = json[nameAttribute],
@@ -211,13 +201,20 @@ class PropertyInfo {
         type = json[typeAttribute],
         annotations = json[annotationsAttribute];
 
-  Map<String, dynamic> toJson() =>
-      {
+  Map<String, dynamic> toJson() => {
         nameAttribute: name,
         hasSetterAttribute: hasSetter,
         typeAttribute: type,
         if (annotations.isNotEmpty) annotationsAttribute: annotations
       };
+
+  static List<AnnotationInfo> _createAnnotations2(PropertyAccessorElement propertyAccessorElement,
+       FieldElement fieldElement) {
+    List<AnnotationInfo> annotations=[];
+    annotations.addAll(_createAnnotations(propertyAccessorElement));
+    annotations.addAll(_createAnnotations(fieldElement));
+    return annotations;
+  }
 }
 
 /// The [ReflectFramework] recognized a property if there is property with a public getter accessor. It may have a public setter accessor.
@@ -225,17 +222,22 @@ List<PropertyInfo> _createProperties(Element element) {
   List<PropertyInfo> properties = [];
   if (element is ClassElement) {
     var publicAccessors =
-    element.accessors.where((element) => element.isPublic);
+        element.accessors.where((element) => element.isPublic);
     var getterAccessorElements =
-    publicAccessors.where((element) => element.isGetter);
+        publicAccessors.where((element) => element.isGetter);
     var setterAccessorElements =
-    publicAccessors.where((element) => element.isSetter);
+        publicAccessors.where((element) => element.isSetter);
+    var fieldElements = element.fields.where((element) => element.isPublic);
+
     for (PropertyAccessorElement getterAccessorElement
-    in getterAccessorElements) {
+        in getterAccessorElements) {
       bool hasSetter = setterAccessorElements
           .any((element) => element.name == getterAccessorElement.name + "=");
-      PropertyInfo property =
-      PropertyInfo.fromElement(getterAccessorElement, hasSetter);
+      FieldElement fieldElement = fieldElements
+          .firstWhere((element) => element.name == getterAccessorElement.name);
+
+      PropertyInfo property = PropertyInfo.fromElements(
+          getterAccessorElement, hasSetter, fieldElement);
       properties.add(property);
     }
   }
