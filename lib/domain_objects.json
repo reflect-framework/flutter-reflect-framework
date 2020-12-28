@@ -114,7 +114,7 @@
                               "name": "ActionMethodPreProcessor"
                          },
                          "values": {
-                              "order": 12.0
+                              "order": 11.0
                          }
                     }
                ],
@@ -139,6 +139,34 @@
                                    },
                                    "values": {
                                         "order": 22.0
+                                   }
+                              }
+                         ]
+                    },
+                    {
+                         "name": "findPersons",
+                         "returnType": {
+                              "library": "dart:core/list.dart",
+                              "name": "List"
+                         },
+                         "parameterType": {
+                              "library": "dart:core/string.dart",
+                              "name": "String"
+                         },
+                         "annotations": [
+                              {
+                                   "type": {
+                                        "library": "/reflect_framework/lib/reflect_meta_domain_object.dart",
+                                        "name": "DomainClass"
+                                   }
+                              },
+                              {
+                                   "type": {
+                                        "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor.dart",
+                                        "name": "ActionMethodPreProcessor"
+                                   },
+                                   "values": {
+                                        "order": 33.0
                                    }
                               }
                          ]

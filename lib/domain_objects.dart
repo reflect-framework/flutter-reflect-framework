@@ -38,7 +38,7 @@ class Address {
 }
 
 @ServiceClass()
-@ActionMethodPreProcessor(12)//TODO remove after test
+@ActionMethodPreProcessor(11)//TODO remove after test
 class PersonService {
 
   @DomainClass()//TODO remove after test
@@ -52,6 +52,19 @@ class PersonService {
       Person("Nils", "ten Hoeve")
     ];
   }
+
+  @DomainClass()//TODO remove after test
+  @ActionMethodPreProcessor(33)//TODO remove after test
+  List<Person> findPersons(String query) {
+    return [
+      Person("James", "Gosling"),
+      Person("Eric", "Evans"),
+      Person("Martin", "Fowler"),
+      Person("Richard", "Pawson"),
+      Person("Nils", "ten Hoeve")
+    ];
+  }
+
 }
 
 class Person {

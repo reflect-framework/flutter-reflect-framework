@@ -132,26 +132,33 @@ List<AnnotationInfo> _createAnnotations(Element element) {
 class MethodInfo {
   static const nameAttribute = 'name';
   static const returnTypeAttribute = 'returnType';
+  static const parameterTypeAttribute='parameterType';
   static const annotationsAttribute = 'annotations';
 
   final String name;
   final TypeInfo returnType;
+  final TypeInfo parameterType;
   final List<AnnotationInfo> annotations;
 
   MethodInfo.fromElement(MethodElement methodElement)
       : name = methodElement.name,
         returnType = TypeInfo.fromElement(methodElement.returnType.element),
+        parameterType= methodElement.parameters.length==1? TypeInfo.fromElement(methodElement.parameters[0].type.element):null,
         annotations = _createAnnotations(methodElement);
 
   MethodInfo.fromJson(Map<String, dynamic> json)
       : name = json[nameAttribute],
         returnType = json[returnTypeAttribute],
+        parameterType = json[parameterTypeAttribute],
         annotations = json[annotationsAttribute];
 
   Map<String, dynamic> toJson() => {
         nameAttribute: name,
         returnTypeAttribute: returnType,
-        annotationsAttribute: annotations
+        if (parameterType!=null)
+          parameterTypeAttribute: parameterType,
+        if (annotations.isNotEmpty)
+          annotationsAttribute: annotations
       };
 
   static bool isNeeded(MethodElement methodElement) {
