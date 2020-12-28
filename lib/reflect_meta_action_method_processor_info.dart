@@ -1,9 +1,10 @@
 import 'package:analyzer/dart/element/element.dart';
+import 'package:reflect_framework/reflect_meta_class_info.dart';
 import 'package:source_gen/source_gen.dart';
 
 ///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
 class ActionMethodProcessorInfo {
-  static const pathAttribute = 'path';
+  static const typeAttribute = 'type';
   static const functionNameAttribute = 'functionName';
   static const orderAttribute = 'order';
   static const requiredAnnotationAttribute = 'requiredAnnotation';
@@ -11,11 +12,10 @@ class ActionMethodProcessorInfo {
   static const parameterHasDomainClassAnnotationAttribute =
       'parameterHasDomainClassAnnotation';
 
-  final String path;
-  final String functionName;
+  final TypeInfo type;
   final double order;
   final String requiredAnnotation;
-  final String parameterType;
+  final TypeInfo parameterType;
   final bool parameterHasDomainClassAnnotation;
 
   static bool isNeeded(Element element) {
@@ -30,8 +30,7 @@ class ActionMethodProcessorInfo {
   }
 
   ActionMethodProcessorInfo.fromElement(Element element)
-      : path = element.source.fullName,
-        functionName = element.name,
+      : type = TypeInfo.fromElement(element),
         order = _order(element),
         requiredAnnotation = _requiredAnnotation(element),
         parameterType = _parameterType(element),
@@ -41,8 +40,7 @@ class ActionMethodProcessorInfo {
   }
 
   ActionMethodProcessorInfo.fromJson(Map<String, dynamic> json)
-      : path = json[pathAttribute],
-        functionName = json[functionNameAttribute],
+      : type = json[typeAttribute],
         order = json[orderAttribute],
         requiredAnnotation = json[requiredAnnotationAttribute],
         parameterType = json[parameterTypeAttribute],
@@ -50,8 +48,7 @@ class ActionMethodProcessorInfo {
             json[parameterHasDomainClassAnnotationAttribute];
 
   Map<String, dynamic> toJson() => {
-        pathAttribute: path,
-        functionNameAttribute: functionName,
+        typeAttribute: type,
         orderAttribute: order,
         if (requiredAnnotation != null)
           requiredAnnotationAttribute: requiredAnnotation,
@@ -111,14 +108,14 @@ class ActionMethodProcessorInfo {
     return defaultWhenNotFound;
   }
 
-  static String _parameterType(Element element) {
+  static TypeInfo _parameterType(Element element) {
     if (element is FunctionElement) {
       List<ParameterElement> parameters = element.parameters;
       if (parameters.length <= 1) {
         return null;
       }
-      var parameterType = parameters[1].type;
-      return parameterType.toString().replaceAll('*', '');
+      var parameterTypeElement = parameters[1].type.element;
+      return TypeInfo.fromElement(parameterTypeElement);
     }
     return null;
   }

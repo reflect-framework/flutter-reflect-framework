@@ -1,28 +1,45 @@
 {
      "actionMethodProcessors": [
           {
-               "path": "/reflect_framework/lib/reflect_meta_action_method_processor_impl.dart",
-               "functionName": "showPopupTextForMethodsReturningVoid",
+               "type": {
+                    "library": "/reflect_framework/lib/reflect_meta_action_method_processor_impl.dart",
+                    "name": "showPopupTextForMethodsReturningVoid"
+               },
                "order": 100.0
           },
           {
-               "path": "/reflect_framework/lib/reflect_meta_action_method_processor_impl.dart",
-               "functionName": "showStringInDialog",
+               "type": {
+                    "library": "/reflect_framework/lib/reflect_meta_action_method_processor_impl.dart",
+                    "name": "showStringInDialog"
+               },
                "order": 102.0,
-               "parameterType": "String"
+               "parameterType": {
+                    "library": "dart:core/string.dart",
+                    "name": "String"
+               }
           },
           {
-               "path": "/reflect_framework/lib/reflect_meta_action_method_processor_impl.dart",
-               "functionName": "showDomainObjectInReadonlyFormTab",
+               "type": {
+                    "library": "/reflect_framework/lib/reflect_meta_action_method_processor_impl.dart",
+                    "name": "showDomainObjectInReadonlyFormTab"
+               },
                "order": 110.0,
-               "parameterType": "Object",
+               "parameterType": {
+                    "library": "dart:core/object.dart",
+                    "name": "Object"
+               },
                "parameterHasDomainClassAnnotation": true
           },
           {
-               "path": "/reflect_framework/lib/reflect_meta_action_method_processor_impl.dart",
-               "functionName": "showListInTableTab",
+               "type": {
+                    "library": "/reflect_framework/lib/reflect_meta_action_method_processor_impl.dart",
+                    "name": "showListInTableTab"
+               },
                "order": 111.0,
-               "parameterType": "List<Object>",
+               "parameterType": {
+                    "library": "dart:core/list.dart",
+                    "name": "List"
+               },
                "parameterHasDomainClassAnnotation": true
           }
      ]
