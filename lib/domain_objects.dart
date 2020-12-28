@@ -55,8 +55,8 @@ class Person {
 
   Person(this.givenName, this.surName);
 
-  String get fullName {
-    return givenName ?? "" + " " + surName ?? "".trim();
-  }
+  // String get fullName {
+  //   return givenName ?? "" + " " + surName ?? "".trim();
+  // }
 
 }

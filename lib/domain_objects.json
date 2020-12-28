@@ -93,7 +93,11 @@
                ],
                "methods": [
                     {
-                         "name": "allPersons"
+                         "name": "allPersons",
+                         "returnType": {
+                              "library": "dart:core/list.dart",
+                              "name": "List"
+                         }
                     }
                ]
           },
@@ -114,9 +118,6 @@
                     },
                     {
                          "name": "surName="
-                    },
-                    {
-                         "name": "fullName"
                     }
                ]
           }
