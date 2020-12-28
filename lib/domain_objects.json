@@ -107,6 +107,15 @@
                               "library": "/reflect_framework/lib/reflect_meta_service_object.dart",
                               "name": "ServiceClass"
                          }
+                    },
+                    {
+                         "type": {
+                              "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor.dart",
+                              "name": "ActionMethodPreProcessor"
+                         },
+                         "values": {
+                              "order": 12.0
+                         }
                     }
                ],
                "methods": [
@@ -147,7 +156,24 @@
                          "type": {
                               "library": "dart:core/string.dart",
                               "name": "String"
-                         }
+                         },
+                         "annotations": [
+                              {
+                                   "type": {
+                                        "library": "/reflect_framework/lib/reflect_meta_domain_object.dart",
+                                        "name": "DomainClass"
+                                   }
+                              },
+                              {
+                                   "type": {
+                                        "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor.dart",
+                                        "name": "ActionMethodPreProcessor"
+                                   },
+                                   "values": {
+                                        "order": 111.0
+                                   }
+                              }
+                         ]
                     }
                ]
           }

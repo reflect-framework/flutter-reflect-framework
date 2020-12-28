@@ -12,7 +12,15 @@
                          "type": {
                               "library": "/flutter/lib/src/material/theme_data.dart",
                               "name": "ThemeData"
-                         }
+                         },
+                         "annotations": [
+                              {
+                                   "type": {
+                                        "library": "dart:core/annotations.dart",
+                                        "name": "_Override"
+                                   }
+                              }
+                         ]
                     },
                     {
                          "name": "darkTheme",
@@ -20,7 +28,15 @@
                          "type": {
                               "library": "/flutter/lib/src/material/theme_data.dart",
                               "name": "ThemeData"
-                         }
+                         },
+                         "annotations": [
+                              {
+                                   "type": {
+                                        "library": "dart:core/annotations.dart",
+                                        "name": "_Override"
+                                   }
+                              }
+                         ]
                     }
                ]
           }

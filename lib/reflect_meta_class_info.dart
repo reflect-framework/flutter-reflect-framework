@@ -104,27 +104,32 @@ class AnnotationInfo {
       {typeAttribute: type, if (values.isNotEmpty) valuesAttribute: values};
 
   static Map<String, Object> _values(ElementAnnotation annotationElement) {
-    List<ParameterElement> parameters =
-        (annotationElement.element as ConstructorElement).parameters;
-    var dartObject = annotationElement.computeConstantValue();
-    ConstantReader reader = ConstantReader(dartObject);
-
-    return {
-      for (ParameterElement parameter in parameters)
-        parameter.name: reader.peek(parameter.name).literalValue,
-    };
+    try {
+      List<ParameterElement> parameters =
+          (annotationElement.element as ConstructorElement).parameters;
+      var dartObject = annotationElement.computeConstantValue();
+      ConstantReader reader = ConstantReader(dartObject);
+      return {
+        for (ParameterElement parameter in parameters)
+          parameter.name: reader
+              .peek(parameter.name)
+              .literalValue,
+      };
+    } catch (e) {
+      return const {};
+    }
   }
 }
 
 List<AnnotationInfo> _createAnnotations(Element element) {
   List<AnnotationInfo> annotations = [];
-  if (element is ClassElement) {
+  // if (element is ClassElement) {
     List<ElementAnnotation> annotationElements = element.metadata;
     for (ElementAnnotation annotationElement in annotationElements) {
       AnnotationInfo annotation = AnnotationInfo.fromElement(annotationElement);
       annotations.add(annotation);
     }
-  }
+  // }
   return annotations;
 }
 
@@ -169,31 +174,39 @@ List<MethodInfo> _createMethods(Element element) {
 }
 
 /// TODO: explain what a property is.
-///
-/// The [ReflectFramework] recognized a property if there is property with a public getter accessor. It may have a public setter accessor.
+/// TODO include [_createAnnotations]
 class PropertyInfo {
   static const nameAttribute = 'name';
   static const typeAttribute = 'type';
   static const hasSetterAttribute = 'hasSetter';
+  static const annotationsAttribute = 'annotations';
 
   final String name;
   final TypeInfo type;
   final bool hasSetter;
+  final List<AnnotationInfo> annotations;
 
   PropertyInfo.fromElement(
       PropertyAccessorElement propertyAccessorElement, this.hasSetter)
       : name = propertyAccessorElement.name,
-        type = TypeInfo.fromElement(propertyAccessorElement.returnType.element);
+        type = TypeInfo.fromElement(propertyAccessorElement.returnType.element),
+        annotations = _createAnnotations(propertyAccessorElement);
 
   PropertyInfo.fromJson(Map<String, dynamic> json)
       : name = json[nameAttribute],
         hasSetter = json[hasSetterAttribute],
-        type = json[typeAttribute];
+        type = json[typeAttribute],
+        annotations = json[annotationsAttribute];
 
-  Map<String, dynamic> toJson() =>
-      {nameAttribute: name, hasSetterAttribute: hasSetter, typeAttribute: type};
+  Map<String, dynamic> toJson() => {
+        nameAttribute: name,
+        hasSetterAttribute: hasSetter,
+        typeAttribute: type,
+        if (annotations.isNotEmpty) annotationsAttribute: annotations
+      };
 }
 
+/// The [ReflectFramework] recognized a property if there is property with a public getter accessor. It may have a public setter accessor.
 List<PropertyInfo> _createProperties(Element element) {
   List<PropertyInfo> properties = [];
   if (element is ClassElement) {

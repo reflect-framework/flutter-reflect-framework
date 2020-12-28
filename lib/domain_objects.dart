@@ -1,3 +1,5 @@
+import 'package:reflect_framework/reflect_meta_action_method_pre_processor.dart';
+import 'package:reflect_framework/reflect_meta_domain_object.dart';
 import 'package:reflect_framework/reflect_meta_service_object.dart';
 
 class Payment {
@@ -36,6 +38,7 @@ class Address {
 }
 
 @ServiceClass()
+@ActionMethodPreProcessor(12)//TODO remove after test
 class PersonService {
 
   List<Person> allPersons() {
@@ -52,6 +55,9 @@ class PersonService {
 class Person {
   String givenName;
   String surName;
+
+  @DomainClass()//TODO remove after test
+  @ActionMethodPreProcessor(111)//TODO remove after test
   String get fullName {
     return givenName ?? "" + " " + surName ?? "".trim();
   }
