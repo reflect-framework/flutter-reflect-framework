@@ -33,7 +33,8 @@ class ClassInfo {
         methods = json[methodsAttribute],
         properties = json[propertiesAttribute];
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() =>
+      {
         typeAttribute: type,
         if (annotations.isNotEmpty) annotationsAttribute: annotations,
         if (methods.isNotEmpty) methodsAttribute: methods,
@@ -72,13 +73,14 @@ class TypeInfo {
 //
 //       }
 //     }
-  ;
+      ;
 
   TypeInfo.fromJson(Map<String, dynamic> json)
       : library = json[libraryAttribute],
         name = json[nameAttribute];
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() =>
+      {
         libraryAttribute: library,
         nameAttribute: name,
       };
@@ -93,7 +95,10 @@ class AnnotationInfo {
 
   AnnotationInfo.fromElement(ElementAnnotation annotationElement)
       : type = TypeInfo.fromElement(
-            annotationElement.computeConstantValue().type.element),
+      annotationElement
+          .computeConstantValue()
+          .type
+          .element),
         values = _values(annotationElement);
 
   AnnotationInfo.fromJson(Map<String, dynamic> json)
@@ -124,11 +129,11 @@ class AnnotationInfo {
 List<AnnotationInfo> _createAnnotations(Element element) {
   List<AnnotationInfo> annotations = [];
   // if (element is ClassElement) {
-    List<ElementAnnotation> annotationElements = element.metadata;
-    for (ElementAnnotation annotationElement in annotationElements) {
-      AnnotationInfo annotation = AnnotationInfo.fromElement(annotationElement);
-      annotations.add(annotation);
-    }
+  List<ElementAnnotation> annotationElements = element.metadata;
+  for (ElementAnnotation annotationElement in annotationElements) {
+    AnnotationInfo annotation = AnnotationInfo.fromElement(annotationElement);
+    annotations.add(annotation);
+  }
   // }
   return annotations;
 }
@@ -136,25 +141,33 @@ List<AnnotationInfo> _createAnnotations(Element element) {
 class MethodInfo {
   static const nameAttribute = 'name';
   static const returnTypeAttribute = 'returnType';
+  static const annotationsAttribute = 'annotations';
 
   final String name;
   final TypeInfo returnType;
+  final List<AnnotationInfo> annotations;
 
   MethodInfo.fromElement(MethodElement methodElement)
       : name = methodElement.name,
-        returnType = TypeInfo.fromElement(methodElement.returnType.element);
+        returnType = TypeInfo.fromElement(methodElement.returnType.element),
+        annotations=_createAnnotations(methodElement);
 
   MethodInfo.fromJson(Map<String, dynamic> json)
       : name = json[nameAttribute],
-        returnType = json[returnTypeAttribute];
+        returnType = json[returnTypeAttribute],
+        annotations=json[annotationsAttribute];
 
   Map<String, dynamic> toJson() =>
-      {nameAttribute: name, returnTypeAttribute: returnType};
+      {
+        nameAttribute: name,
+        returnTypeAttribute: returnType,
+        annotationsAttribute: annotations
+      };
 
   static bool isNeeded(MethodElement methodElement) {
-    if (methodElement.isPrivate) {
-      return false;
-    }
+    if (methodElement.isPrivate) return false;
+    if (methodElement.parameters.length > 1) return false;
+    //public and zero or one parameter
     return true;
   }
 }
@@ -186,8 +199,8 @@ class PropertyInfo {
   final bool hasSetter;
   final List<AnnotationInfo> annotations;
 
-  PropertyInfo.fromElement(
-      PropertyAccessorElement propertyAccessorElement, this.hasSetter)
+  PropertyInfo.fromElement(PropertyAccessorElement propertyAccessorElement,
+      this.hasSetter)
       : name = propertyAccessorElement.name,
         type = TypeInfo.fromElement(propertyAccessorElement.returnType.element),
         annotations = _createAnnotations(propertyAccessorElement);
@@ -198,7 +211,8 @@ class PropertyInfo {
         type = json[typeAttribute],
         annotations = json[annotationsAttribute];
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() =>
+      {
         nameAttribute: name,
         hasSetterAttribute: hasSetter,
         typeAttribute: type,
@@ -211,17 +225,17 @@ List<PropertyInfo> _createProperties(Element element) {
   List<PropertyInfo> properties = [];
   if (element is ClassElement) {
     var publicAccessors =
-        element.accessors.where((element) => element.isPublic);
+    element.accessors.where((element) => element.isPublic);
     var getterAccessorElements =
-        publicAccessors.where((element) => element.isGetter);
+    publicAccessors.where((element) => element.isGetter);
     var setterAccessorElements =
-        publicAccessors.where((element) => element.isSetter);
+    publicAccessors.where((element) => element.isSetter);
     for (PropertyAccessorElement getterAccessorElement
-        in getterAccessorElements) {
+    in getterAccessorElements) {
       bool hasSetter = setterAccessorElements
           .any((element) => element.name == getterAccessorElement.name + "=");
       PropertyInfo property =
-          PropertyInfo.fromElement(getterAccessorElement, hasSetter);
+      PropertyInfo.fromElement(getterAccessorElement, hasSetter);
       properties.add(property);
     }
   }

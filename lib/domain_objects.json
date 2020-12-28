@@ -124,7 +124,24 @@
                          "returnType": {
                               "library": "dart:core/list.dart",
                               "name": "List"
-                         }
+                         },
+                         "annotations": [
+                              {
+                                   "type": {
+                                        "library": "/reflect_framework/lib/reflect_meta_domain_object.dart",
+                                        "name": "DomainClass"
+                                   }
+                              },
+                              {
+                                   "type": {
+                                        "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor.dart",
+                                        "name": "ActionMethodPreProcessor"
+                                   },
+                                   "values": {
+                                        "order": 22.0
+                                   }
+                              }
+                         ]
                     }
                ]
           },
@@ -170,7 +187,7 @@
                                         "name": "ActionMethodPreProcessor"
                                    },
                                    "values": {
-                                        "order": 111.0
+                                        "order": 222.0
                                    }
                               }
                          ]

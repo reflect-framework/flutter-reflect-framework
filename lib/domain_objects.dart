@@ -41,6 +41,8 @@ class Address {
 @ActionMethodPreProcessor(12)//TODO remove after test
 class PersonService {
 
+  @DomainClass()//TODO remove after test
+  @ActionMethodPreProcessor(22)//TODO remove after test
   List<Person> allPersons() {
     return [
       Person("James", "Gosling"),
@@ -54,10 +56,13 @@ class PersonService {
 
 class Person {
   String givenName;
-  String surName;
 
   @DomainClass()//TODO remove after test
   @ActionMethodPreProcessor(111)//TODO remove after test
+  String surName;
+
+  @DomainClass()//TODO remove after test
+  @ActionMethodPreProcessor(222)//TODO remove after test
   String get fullName {
     return givenName ?? "" + " " + surName ?? "".trim();
   }
