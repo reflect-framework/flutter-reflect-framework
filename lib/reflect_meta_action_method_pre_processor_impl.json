@@ -1,29 +1,46 @@
 {
      "actionMethodPreProcessors": [
           {
-               "path": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
-               "functionName": "executeDirectlyForMethodsWithoutParameter",
+               "type": {
+                    "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
+                    "name": "executeDirectlyForMethodsWithoutParameter"
+               },
                "order": 100.0
           },
           {
-               "path": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
-               "functionName": "editDomainObjectParameterInForm",
+               "type": {
+                    "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
+                    "name": "editDomainObjectParameterInForm"
+               },
                "order": 102.0,
-               "parameterType": "Object",
+               "parameterType": {
+                    "library": "dart:core/object.dart",
+                    "name": "Object"
+               },
                "parameterHasDomainClassAnnotation": true
           },
           {
-               "path": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
-               "functionName": "editStringParameterInDialog",
+               "type": {
+                    "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
+                    "name": "editStringParameterInDialog"
+               },
                "order": 103.0,
-               "parameterType": "String"
+               "parameterType": {
+                    "library": "dart:core/string.dart",
+                    "name": "String"
+               }
           },
           {
-               "path": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
-               "functionName": "executeDirectlyForMethodsWithProcessDirectlyAnnotation",
+               "type": {
+                    "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
+                    "name": "executeDirectlyForMethodsWithProcessDirectlyAnnotation"
+               },
                "order": 150.0,
                "requiredAnnotation": "ProcessDirectly",
-               "parameterType": "Object"
+               "parameterType": {
+                    "library": "dart:core/object.dart",
+                    "name": "Object"
+               }
           }
      ]
 }
