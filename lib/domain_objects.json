@@ -5,18 +5,22 @@
                     "library": "/reflect_framework/lib/domain_objects.dart",
                     "name": "Payment"
                },
-               "propertyAccessors": [
+               "properties": [
                     {
-                         "name": "address"
+                         "name": "address",
+                         "hasSetter": true,
+                         "type": {
+                              "library": "/reflect_framework/lib/domain_objects.dart",
+                              "name": "Address"
+                         }
                     },
                     {
-                         "name": "address="
-                    },
-                    {
-                         "name": "cardDetails"
-                    },
-                    {
-                         "name": "cardDetails="
+                         "name": "cardDetails",
+                         "hasSetter": true,
+                         "type": {
+                              "library": "/reflect_framework/lib/domain_objects.dart",
+                              "name": "CardDetails"
+                         }
                     }
                ]
           },
@@ -25,36 +29,46 @@
                     "library": "/reflect_framework/lib/domain_objects.dart",
                     "name": "CardDetails"
                },
-               "propertyAccessors": [
+               "properties": [
                     {
-                         "name": "cardHolderName"
+                         "name": "cardHolderName",
+                         "hasSetter": true,
+                         "type": {
+                              "library": "dart:core/string.dart",
+                              "name": "String"
+                         }
                     },
                     {
-                         "name": "cardHolderName="
+                         "name": "cardNumber",
+                         "hasSetter": true,
+                         "type": {
+                              "library": "dart:core/string.dart",
+                              "name": "String"
+                         }
                     },
                     {
-                         "name": "cardNumber"
+                         "name": "expiryMonth",
+                         "hasSetter": true,
+                         "type": {
+                              "library": "dart:core/string.dart",
+                              "name": "String"
+                         }
                     },
                     {
-                         "name": "cardNumber="
+                         "name": "expiryYear",
+                         "hasSetter": true,
+                         "type": {
+                              "library": "dart:core/string.dart",
+                              "name": "String"
+                         }
                     },
                     {
-                         "name": "expiryMonth"
-                    },
-                    {
-                         "name": "expiryMonth="
-                    },
-                    {
-                         "name": "expiryYear"
-                    },
-                    {
-                         "name": "expiryYear="
-                    },
-                    {
-                         "name": "securityCode"
-                    },
-                    {
-                         "name": "securityCode="
+                         "name": "securityCode",
+                         "hasSetter": true,
+                         "type": {
+                              "library": "dart:core/int.dart",
+                              "name": "int"
+                         }
                     }
                ]
           },
@@ -63,18 +77,22 @@
                     "library": "/reflect_framework/lib/domain_objects.dart",
                     "name": "Address"
                },
-               "propertyAccessors": [
+               "properties": [
                     {
-                         "name": "postCode"
+                         "name": "postCode",
+                         "hasSetter": true,
+                         "type": {
+                              "library": "dart:core/string.dart",
+                              "name": "String"
+                         }
                     },
                     {
-                         "name": "postCode="
-                    },
-                    {
-                         "name": "addressLine"
-                    },
-                    {
-                         "name": "addressLine="
+                         "name": "addressLine",
+                         "hasSetter": true,
+                         "type": {
+                              "library": "dart:core/string.dart",
+                              "name": "String"
+                         }
                     }
                ]
           },
@@ -106,18 +124,30 @@
                     "library": "/reflect_framework/lib/domain_objects.dart",
                     "name": "Person"
                },
-               "propertyAccessors": [
+               "properties": [
                     {
-                         "name": "givenName"
+                         "name": "givenName",
+                         "hasSetter": true,
+                         "type": {
+                              "library": "dart:core/string.dart",
+                              "name": "String"
+                         }
                     },
                     {
-                         "name": "givenName="
+                         "name": "surName",
+                         "hasSetter": true,
+                         "type": {
+                              "library": "dart:core/string.dart",
+                              "name": "String"
+                         }
                     },
                     {
-                         "name": "surName"
-                    },
-                    {
-                         "name": "surName="
+                         "name": "fullName",
+                         "hasSetter": false,
+                         "type": {
+                              "library": "dart:core/string.dart",
+                              "name": "String"
+                         }
                     }
                ]
           }

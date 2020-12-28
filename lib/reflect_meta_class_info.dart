@@ -6,12 +6,12 @@ class ClassInfo {
   static const typeAttribute = 'type';
   static const annotationsAttribute = 'annotations';
   static const methodsAttribute = 'methods';
-  static const propertyAccessorAttribute = 'propertyAccessors';
+  static const propertiesAttribute = 'properties';
 
   final TypeInfo type;
   final List<AnnotationInfo> annotations;
   final List<MethodInfo> methods;
-  final List<PropertyAccessorInfo> propertyAccessors;
+  final List<PropertyInfo> properties;
 
   static bool isNeeded(ClassElement element) {
     if (!element.isPublic) return false;
@@ -25,20 +25,19 @@ class ClassInfo {
       : type = TypeInfo.fromElement(element),
         annotations = _createAnnotations(element),
         methods = _createMethods(element),
-        propertyAccessors = _createPropertyAccessor(element);
+        properties = _createProperties(element);
 
   ClassInfo.fromJson(Map<String, dynamic> json)
       : type = json[typeAttribute],
         annotations = json[annotationsAttribute],
         methods = json[methodsAttribute],
-        propertyAccessors = json[propertyAccessorAttribute];
+        properties = json[propertiesAttribute];
 
   Map<String, dynamic> toJson() => {
         typeAttribute: type,
         if (annotations.isNotEmpty) annotationsAttribute: annotations,
         if (methods.isNotEmpty) methodsAttribute: methods,
-        if (propertyAccessors.isNotEmpty)
-          propertyAccessorAttribute: propertyAccessors
+        if (properties.isNotEmpty) propertiesAttribute: properties
       };
 }
 
@@ -63,16 +62,17 @@ class TypeInfo {
 
   TypeInfo.fromElement(Element element)
       : library = element.source.fullName,
-        name = element.name;
+        name = element.name
 
   // TODO Trying to get generic types (e.g. get Person from List<Person>) but nu success so far
 // {
-  //   if (element is TypeParameterizedElement) {
-  //     for (TypeParameterElement e in element.typeParameters) {
-  //       print("++ $element:${e.name}");
-  //
-  //     }
-  //   }
+//     if (element is TypeParameterizedElement) {
+//       for (TypeParameterElement e in element.typeParameters) {
+//         print("++ $element:${e.name}");
+//
+//       }
+//     }
+  ;
 
   TypeInfo.fromJson(Map<String, dynamic> json)
       : library = json[libraryAttribute],
@@ -143,10 +143,8 @@ class MethodInfo {
       : name = json[nameAttribute],
         returnType = json[returnTypeAttribute];
 
-  Map<String, dynamic> toJson() => {
-        nameAttribute: name,
-        returnTypeAttribute: returnType
-      };
+  Map<String, dynamic> toJson() =>
+      {nameAttribute: name, returnTypeAttribute: returnType};
 
   static bool isNeeded(MethodElement methodElement) {
     if (methodElement.isPrivate) {
@@ -170,42 +168,49 @@ List<MethodInfo> _createMethods(Element element) {
   return methods;
 }
 
-class PropertyAccessorInfo {
+/// TODO: explain what a property is.
+///
+/// The [ReflectFramework] recognized a property if there is property with a public getter accessor. It may have a public setter accessor.
+class PropertyInfo {
   static const nameAttribute = 'name';
+  static const typeAttribute = 'type';
+  static const hasSetterAttribute = 'hasSetter';
 
   final String name;
+  final TypeInfo type;
+  final bool hasSetter;
 
-  PropertyAccessorInfo.fromElement(
-      PropertyAccessorElement propertyAccessorElement)
-      : name = propertyAccessorElement.name;
+  PropertyInfo.fromElement(
+      PropertyAccessorElement propertyAccessorElement, this.hasSetter)
+      : name = propertyAccessorElement.name,
+        type = TypeInfo.fromElement(propertyAccessorElement.returnType.element);
 
-  PropertyAccessorInfo.fromJson(Map<String, dynamic> json)
-      : name = json[nameAttribute];
+  PropertyInfo.fromJson(Map<String, dynamic> json)
+      : name = json[nameAttribute],
+        hasSetter = json[hasSetterAttribute],
+        type = json[typeAttribute];
 
-  Map<String, dynamic> toJson() => {
-        nameAttribute: name,
-      };
-
-  static bool isNeeded(PropertyAccessorElement propertyAccessorElement) {
-    if (propertyAccessorElement.isPrivate) {
-      return false;
-    }
-    return true;
-  }
+  Map<String, dynamic> toJson() =>
+      {nameAttribute: name, hasSetterAttribute: hasSetter, typeAttribute: type};
 }
 
-List<PropertyAccessorInfo> _createPropertyAccessor(Element element) {
-  List<PropertyAccessorInfo> propertyAccessors = [];
+List<PropertyInfo> _createProperties(Element element) {
+  List<PropertyInfo> properties = [];
   if (element is ClassElement) {
-    List<PropertyAccessorElement> propertyAccessorElements = element.accessors;
-    for (PropertyAccessorElement propertyAccessorElement
-        in propertyAccessorElements) {
-      if (PropertyAccessorInfo.isNeeded(propertyAccessorElement)) {
-        PropertyAccessorInfo propertyAccessor =
-            PropertyAccessorInfo.fromElement(propertyAccessorElement);
-        propertyAccessors.add(propertyAccessor);
-      }
+    var publicAccessors =
+        element.accessors.where((element) => element.isPublic);
+    var getterAccessorElements =
+        publicAccessors.where((element) => element.isGetter);
+    var setterAccessorElements =
+        publicAccessors.where((element) => element.isSetter);
+    for (PropertyAccessorElement getterAccessorElement
+        in getterAccessorElements) {
+      bool hasSetter = setterAccessorElements
+          .any((element) => element.name == getterAccessorElement.name + "=");
+      PropertyInfo property =
+          PropertyInfo.fromElement(getterAccessorElement, hasSetter);
+      properties.add(property);
     }
   }
-  return propertyAccessors;
+  return properties;
 }

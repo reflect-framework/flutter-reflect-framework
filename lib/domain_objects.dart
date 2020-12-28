@@ -52,11 +52,12 @@ class PersonService {
 class Person {
   String givenName;
   String surName;
+  String get fullName {
+    return givenName ?? "" + " " + surName ?? "".trim();
+  }
 
   Person(this.givenName, this.surName);
 
-  // String get fullName {
-  //   return givenName ?? "" + " " + surName ?? "".trim();
-  // }
+
 
 }

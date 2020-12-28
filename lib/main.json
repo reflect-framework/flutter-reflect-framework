@@ -5,12 +5,22 @@
                     "library": "/reflect_framework/lib/main.dart",
                     "name": "MyApp"
                },
-               "propertyAccessors": [
+               "properties": [
                     {
-                         "name": "lightTheme"
+                         "name": "lightTheme",
+                         "hasSetter": false,
+                         "type": {
+                              "library": "/flutter/lib/src/material/theme_data.dart",
+                              "name": "ThemeData"
+                         }
                     },
                     {
-                         "name": "darkTheme"
+                         "name": "darkTheme",
+                         "hasSetter": false,
+                         "type": {
+                              "library": "/flutter/lib/src/material/theme_data.dart",
+                              "name": "ThemeData"
+                         }
                     }
                ]
           }
