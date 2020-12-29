@@ -123,7 +123,13 @@
                          "name": "allPersons",
                          "returnType": {
                               "library": "dart:core/list.dart",
-                              "name": "List"
+                              "name": "List",
+                              "genericTypes": [
+                                   {
+                                        "library": "/reflect_framework/lib/domain_objects.dart",
+                                        "name": "Person"
+                                   }
+                              ]
                          },
                          "annotations": [
                               {
@@ -147,7 +153,13 @@
                          "name": "findPersons",
                          "returnType": {
                               "library": "dart:core/list.dart",
-                              "name": "List"
+                              "name": "List",
+                              "genericTypes": [
+                                   {
+                                        "library": "/reflect_framework/lib/domain_objects.dart",
+                                        "name": "Person"
+                                   }
+                              ]
                          },
                          "parameterType": {
                               "library": "dart:core/string.dart",

@@ -1,4 +1,5 @@
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:source_gen/source_gen.dart';
 
 ///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
@@ -56,32 +57,45 @@ List<ClassInfo> createClasses(LibraryReader library) {
 class TypeInfo {
   static const libraryAttribute = 'library';
   static const nameAttribute = 'name';
+  static const genericTypesAttribute = 'genericTypes';
 
   final String library;
   final String name;
+  final List<TypeInfo> genericTypes;
 
   TypeInfo.fromElement(Element element)
       : library = element.source.fullName,
-        name = element.name
+        name = element.name,
+        genericTypes = const [];
 
-  // TODO Trying to get generic types (e.g. get Person from List<Person>) but nu success so far
-// {
-//     if (element is TypeParameterizedElement) {
-//       for (TypeParameterElement e in element.typeParameters) {
-//         print("++ $element:${e.name}");
-//
-//       }
-//     }
-  ;
+  TypeInfo.fromDartType(DartType dartType)
+      : library = dartType.element.source.fullName,
+        name = dartType.element.name,
+        genericTypes = _createGenericTypes(dartType);
 
   TypeInfo.fromJson(Map<String, dynamic> json)
       : library = json[libraryAttribute],
-        name = json[nameAttribute];
+        name = json[nameAttribute],
+        genericTypes = json[genericTypesAttribute];
 
   Map<String, dynamic> toJson() => {
         libraryAttribute: library,
         nameAttribute: name,
+        if (genericTypes.isNotEmpty) genericTypesAttribute: genericTypes
       };
+
+  static List<TypeInfo> _createGenericTypes(DartType dartType) {
+    if (dartType is ParameterizedType) {
+      List<TypeInfo> genericTypes = [];
+      for (DartType genericDartType in dartType.typeArguments) {
+        TypeInfo genericTypeInfo = TypeInfo.fromDartType(genericDartType);
+        genericTypes.add(genericTypeInfo);
+      }
+      return genericTypes;
+    } else {
+      return const [];
+    }
+  }
 }
 
 class AnnotationInfo {
@@ -92,8 +106,8 @@ class AnnotationInfo {
   final Map<String, Object> values;
 
   AnnotationInfo.fromElement(ElementAnnotation annotationElement)
-      : type = TypeInfo.fromElement(
-            annotationElement.computeConstantValue().type.element),
+      : type = TypeInfo.fromDartType(
+            annotationElement.computeConstantValue().type),
         values = _values(annotationElement);
 
   AnnotationInfo.fromJson(Map<String, dynamic> json)
@@ -132,7 +146,7 @@ List<AnnotationInfo> _createAnnotations(Element element) {
 class MethodInfo {
   static const nameAttribute = 'name';
   static const returnTypeAttribute = 'returnType';
-  static const parameterTypeAttribute='parameterType';
+  static const parameterTypeAttribute = 'parameterType';
   static const annotationsAttribute = 'annotations';
 
   final String name;
@@ -142,8 +156,8 @@ class MethodInfo {
 
   MethodInfo.fromElement(MethodElement methodElement)
       : name = methodElement.name,
-        returnType = TypeInfo.fromElement(methodElement.returnType.element),
-        parameterType= methodElement.parameters.length==1? TypeInfo.fromElement(methodElement.parameters[0].type.element):null,
+        returnType = _createReturnType(methodElement),
+        parameterType = _createParameterType(methodElement),
         annotations = _createAnnotations(methodElement);
 
   MethodInfo.fromJson(Map<String, dynamic> json)
@@ -155,10 +169,8 @@ class MethodInfo {
   Map<String, dynamic> toJson() => {
         nameAttribute: name,
         returnTypeAttribute: returnType,
-        if (parameterType!=null)
-          parameterTypeAttribute: parameterType,
-        if (annotations.isNotEmpty)
-          annotationsAttribute: annotations
+        if (parameterType != null) parameterTypeAttribute: parameterType,
+        if (annotations.isNotEmpty) annotationsAttribute: annotations
       };
 
   static bool isNeeded(MethodElement methodElement) {
@@ -167,6 +179,17 @@ class MethodInfo {
     //public and zero or one parameter
     return true;
   }
+
+  static TypeInfo _createParameterType(MethodElement methodElement) {
+    if (methodElement.parameters.length == 1) {
+      return TypeInfo.fromDartType(methodElement.parameters[0].type);
+    } else {
+      return null;
+    }
+  }
+
+  static TypeInfo _createReturnType(MethodElement methodElement) =>
+      TypeInfo.fromDartType(methodElement.returnType);
 }
 
 List<MethodInfo> _createMethods(Element element) {
@@ -199,8 +222,9 @@ class PropertyInfo {
   PropertyInfo.fromElements(PropertyAccessorElement propertyAccessorElement,
       this.hasSetter, FieldElement fieldElement)
       : name = propertyAccessorElement.name,
-        type = TypeInfo.fromElement(propertyAccessorElement.returnType.element),
-        annotations = _createAnnotations2(propertyAccessorElement,fieldElement);
+        type = TypeInfo.fromDartType(propertyAccessorElement.returnType),
+        annotations = _createAnnotationsFrom2Elements(
+            propertyAccessorElement, fieldElement);
 
   PropertyInfo.fromJson(Map<String, dynamic> json)
       : name = json[nameAttribute],
@@ -215,9 +239,10 @@ class PropertyInfo {
         if (annotations.isNotEmpty) annotationsAttribute: annotations
       };
 
-  static List<AnnotationInfo> _createAnnotations2(PropertyAccessorElement propertyAccessorElement,
-       FieldElement fieldElement) {
-    List<AnnotationInfo> annotations=[];
+  static List<AnnotationInfo> _createAnnotationsFrom2Elements(
+      PropertyAccessorElement propertyAccessorElement,
+      FieldElement fieldElement) {
+    List<AnnotationInfo> annotations = [];
     annotations.addAll(_createAnnotations(propertyAccessorElement));
     annotations.addAll(_createAnnotations(fieldElement));
     return annotations;
