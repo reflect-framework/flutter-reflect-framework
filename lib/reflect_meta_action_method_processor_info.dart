@@ -1,5 +1,5 @@
 import 'package:analyzer/dart/element/element.dart';
-import 'package:reflect_framework/reflect_meta_class_info.dart';
+import 'package:reflect_framework/reflect_meta_json_info.dart';
 import 'package:source_gen/source_gen.dart';
 
 ///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
