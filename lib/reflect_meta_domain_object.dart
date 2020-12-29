@@ -13,11 +13,3 @@ class DomainObject {
   /// For documentation only
 }
 
-/// The [DomainClass] annotation is only used by the [ReflectCodeGeneration] to indicate that a method parameter or return value is a [DomainObject].
-/// See:
-/// - [ActionMethodPreProcessor]s
-/// - [ActionMethodProcessor]s
-
-class DomainClass {
- const DomainClass();
-}

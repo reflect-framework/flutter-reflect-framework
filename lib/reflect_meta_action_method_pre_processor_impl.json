@@ -5,14 +5,14 @@
                     "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
                     "name": "executeDirectlyForMethodsWithoutParameter"
                },
-               "order": 100.0
+               "index": 100.0
           },
           {
                "type": {
                     "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
                     "name": "editDomainObjectParameterInForm"
                },
-               "order": 102.0,
+               "index": 102.0,
                "parameterType": {
                     "library": "dart:core/object.dart",
                     "name": "Object"
@@ -24,7 +24,7 @@
                     "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
                     "name": "editStringParameterInDialog"
                },
-               "order": 103.0,
+               "index": 103.0,
                "parameterType": {
                     "library": "dart:core/string.dart",
                     "name": "String"
@@ -35,12 +35,109 @@
                     "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
                     "name": "executeDirectlyForMethodsWithProcessDirectlyAnnotation"
                },
-               "order": 150.0,
-               "requiredAnnotation": "ProcessDirectly",
+               "index": 150.0,
                "parameterType": {
                     "library": "dart:core/object.dart",
                     "name": "Object"
                }
+          }
+     ],
+     "functions": [
+          {
+               "name": "executeDirectlyForMethodsWithoutParameter",
+               "parameterTypes": [
+                    {
+                         "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_context.dart",
+                         "name": "ActionMethodPreProcessorContext"
+                    }
+               ],
+               "annotations": [
+                    {
+                         "type": {
+                              "library": "/reflect_framework/lib/reflect_annotations.dart",
+                              "name": "ActionMethodPreProcessor"
+                         },
+                         "values": {
+                              "index": 100.0,
+                              "actionMethodMustHaveProcessDirectlyAnnotation": false
+                         }
+                    }
+               ]
+          },
+          {
+               "name": "editDomainObjectParameterInForm",
+               "parameterTypes": [
+                    {
+                         "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_context.dart",
+                         "name": "ActionMethodPreProcessorContext"
+                    },
+                    {
+                         "library": "dart:core/object.dart",
+                         "name": "Object"
+                    }
+               ],
+               "annotations": [
+                    {
+                         "type": {
+                              "library": "/reflect_framework/lib/reflect_annotations.dart",
+                              "name": "ActionMethodPreProcessor"
+                         },
+                         "values": {
+                              "index": 102.0,
+                              "actionMethodMustHaveProcessDirectlyAnnotation": false
+                         }
+                    }
+               ]
+          },
+          {
+               "name": "editStringParameterInDialog",
+               "parameterTypes": [
+                    {
+                         "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_context.dart",
+                         "name": "ActionMethodPreProcessorContext"
+                    },
+                    {
+                         "library": "dart:core/string.dart",
+                         "name": "String"
+                    }
+               ],
+               "annotations": [
+                    {
+                         "type": {
+                              "library": "/reflect_framework/lib/reflect_annotations.dart",
+                              "name": "ActionMethodPreProcessor"
+                         },
+                         "values": {
+                              "index": 103.0,
+                              "actionMethodMustHaveProcessDirectlyAnnotation": false
+                         }
+                    }
+               ]
+          },
+          {
+               "name": "executeDirectlyForMethodsWithProcessDirectlyAnnotation",
+               "parameterTypes": [
+                    {
+                         "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_context.dart",
+                         "name": "ActionMethodPreProcessorContext"
+                    },
+                    {
+                         "library": "dart:core/object.dart",
+                         "name": "Object"
+                    }
+               ],
+               "annotations": [
+                    {
+                         "type": {
+                              "library": "/reflect_framework/lib/reflect_annotations.dart",
+                              "name": "ActionMethodPreProcessor"
+                         },
+                         "values": {
+                              "index": 150.0,
+                              "actionMethodMustHaveProcessDirectlyAnnotation": true
+                         }
+                    }
+               ]
           }
      ]
 }

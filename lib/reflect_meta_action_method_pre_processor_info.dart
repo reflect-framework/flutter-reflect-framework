@@ -5,14 +5,14 @@ import 'package:source_gen/source_gen.dart';
 ///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
 class ActionMethodPreProcessorInfo {
   static const typeAttribute = 'type';
-  static const orderAttribute = 'order';
+  static const indexAttribute = 'index';
   static const requiredAnnotationAttribute = 'requiredAnnotation';
   static const parameterTypeAttribute = 'parameterType';
   static const parameterHasDomainClassAnnotationAttribute =
       'parameterHasDomainClassAnnotation';
 
   final TypeInfo type;
-  final double order;
+  final double index;
   final String requiredAnnotation;
   final TypeInfo parameterType;
   final bool parameterHasDomainClassAnnotation;
@@ -30,7 +30,7 @@ class ActionMethodPreProcessorInfo {
 
   ActionMethodPreProcessorInfo.fromElement(Element element)
       : type = TypeInfo.fromElement(element),
-        order = _order(element),
+        index = _index(element),
         requiredAnnotation = _requiredAnnotation(element),
         parameterType = _parameterType(element),
         parameterHasDomainClassAnnotation =
@@ -38,7 +38,7 @@ class ActionMethodPreProcessorInfo {
 
   ActionMethodPreProcessorInfo.fromJson(Map<String, dynamic> json)
       : type = json[typeAttribute],
-        order = json[orderAttribute],
+        index = json[indexAttribute],
         requiredAnnotation = json[requiredAnnotationAttribute],
         parameterType = json[parameterTypeAttribute],
         parameterHasDomainClassAnnotation =
@@ -46,7 +46,7 @@ class ActionMethodPreProcessorInfo {
 
   Map<String, dynamic> toJson() => {
         typeAttribute: type,
-        orderAttribute: order,
+        indexAttribute: index,
         if (requiredAnnotation != null)
           requiredAnnotationAttribute: requiredAnnotation,
         if (parameterType != null) parameterTypeAttribute: parameterType,
@@ -81,12 +81,12 @@ class ActionMethodPreProcessorInfo {
     return false;
   }
 
-  static double _order(Element element) {
+  static double _index(Element element) {
     for (ElementAnnotation e in element.metadata) {
       if (e.toString().startsWith('@ActionMethodPreProcessor')) {
         var dartObject = e.computeConstantValue();
         ConstantReader reader = ConstantReader(dartObject);
-        return reader.peek('order').doubleValue;
+        return reader.peek('index').doubleValue;
       }
     }
     final defaultWhenNotFound = 200.0;

@@ -1,5 +1,4 @@
-import 'package:reflect_framework/reflect_meta_action_method_pre_processor.dart';
-import 'package:reflect_framework/reflect_meta_domain_object.dart';
+import 'package:reflect_framework/reflect_annotations.dart';
 import 'package:reflect_framework/reflect_meta_service_object.dart';
 
 class Payment {
@@ -38,11 +37,11 @@ class Address {
 }
 
 @ServiceClass()
-@ActionMethodPreProcessor(11)//TODO remove after test
+@ActionMethodPreProcessor(index:11)//TODO remove after test
 class PersonService {
 
   @DomainClass()//TODO remove after test
-  @ActionMethodPreProcessor(22)//TODO remove after test
+  @ActionMethodPreProcessor(index:22)//TODO remove after test
   List<Person> allPersons() {
     return [
       Person("James", "Gosling"),
@@ -54,7 +53,7 @@ class PersonService {
   }
 
   @DomainClass()//TODO remove after test
-  @ActionMethodPreProcessor(33)//TODO remove after test
+  @ActionMethodPreProcessor(index: 33)//TODO remove after test
   List<Person> findPersons(String query) {
     return [
       Person("James", "Gosling"),
@@ -71,11 +70,11 @@ class Person {
   String givenName;
 
   @DomainClass()//TODO remove after test
-  @ActionMethodPreProcessor(111)//TODO remove after test
+  @ActionMethodPreProcessor(index:111)//TODO remove after test
   String surName;
 
   @DomainClass()//TODO remove after test
-  @ActionMethodPreProcessor(222)//TODO remove after test
+  @ActionMethodPreProcessor(index:222)//TODO remove after test
   String get fullName {
     return givenName ?? "" + " " + surName ?? "".trim();
   }

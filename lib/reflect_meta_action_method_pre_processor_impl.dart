@@ -1,13 +1,13 @@
-import 'package:reflect_framework/reflect_meta_action_method_pre_processor.dart';
-import 'package:reflect_framework/reflect_meta_domain_object.dart';
+import 'package:reflect_framework/reflect_annotations.dart';
+import 'package:reflect_framework/reflect_meta_action_method_pre_processor_context.dart';
 
-@ActionMethodPreProcessor(100)
+@ActionMethodPreProcessor(index:100)
 void executeDirectlyForMethodsWithoutParameter(
     ActionMethodPreProcessorContext context) {
   context.actionMethodInfo.process(context, []);
 }
 
-@ActionMethodPreProcessor(102)
+@ActionMethodPreProcessor(index:102)
 void editDomainObjectParameterInForm(ActionMethodPreProcessorContext context,
     @DomainClass() Object domainObject) {
   // TODO something like:
@@ -19,7 +19,7 @@ void editDomainObjectParameterInForm(ActionMethodPreProcessorContext context,
   context.actionMethodInfo.process(context, [domainObject]);
 }
 //TODO other Dart types such as int, double,num, bool, DateTime
-@ActionMethodPreProcessor(103)
+@ActionMethodPreProcessor(index:103)
 void editStringParameterInDialog(
     ActionMethodPreProcessorContext context, String value) {
   // TODO create and open dialog
@@ -28,8 +28,7 @@ void editStringParameterInDialog(
   context.actionMethodInfo.process(context, [value]);
 }
 
-@ActionMethodPreProcessor(150)
-@RequiredActionMethodAnnotation("ProcessDirectly")
+@ActionMethodPreProcessor(index:150, actionMethodMustHaveProcessDirectlyAnnotation: true)
 void executeDirectlyForMethodsWithProcessDirectlyAnnotation(
     ActionMethodPreProcessorContext context, Object anyObject) {
   context.actionMethodInfo.process(context, [anyObject]);

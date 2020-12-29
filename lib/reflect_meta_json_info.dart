@@ -1,45 +1,109 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
+import 'package:reflect_framework/reflect_annotations.dart';
 import 'package:reflect_framework/reflect_meta_action_method_pre_processor_info.dart';
 import 'package:reflect_framework/reflect_meta_action_method_processor_info.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Used by the [ReflectInfoJsonBuilder] to create intermediate json files to generate meta code later by another builder (TODO link to builder).
-/// The meta data comes from source files using the [LibraryReader] class from the source_gen package
+/// The meta data comes from source files using the [LibraryElement] class from the source_gen package
 class ReflectInfo {
   static const actionMethodPreProcessorsAttribute = 'actionMethodPreProcessors';
   static const actionMethodProcessorsAttribute = 'actionMethodProcessors';
+  static const functionsAttribute = 'functions';
   static const classesAttribute = 'classes';
+  static const voidName = 'void';
+
+  // We cant use ActionMethodPreProcessorContext type to convert it to a string,
+  // because it contains BuildContext and thus imports from a UI package, which does not go will with build_runner.
+  // Maybe this is because build_runner can use code reflection and Flutter does not allow this???
+  static const actionMethodPreProcessorContextName =
+      'ActionMethodPreProcessorContext';
 
   final List<ActionMethodPreProcessorInfo> actionMethodPreProcessors;
   final List<ActionMethodProcessorInfo> actionMethodProcessors;
+  final List<ExecutableInfo> functions;
   final List<ClassInfo> classes;
 
   //TODO functions (ending with factory in name, when needed for service objects and as a replacement for ActionMethodPreProcessorInfo and ActionMethodProcessorInfo)
   //TODO add enums (with texts)
-  //TODO add reflect texts
+  //TODO add TranslatableTextAnnotations
 
   ReflectInfo.fromLibrary(LibraryReader library)
       : this.actionMethodPreProcessors =
             createActionMethodPreProcessors(library),
         this.actionMethodProcessors = createActionMethodProcessors(library),
-        this.classes = createClasses(library);
+        this.functions = _createFunctions(library),
+        this.classes = _createClasses(library);
 
   ReflectInfo.fromJson(Map<String, dynamic> json)
       : actionMethodPreProcessors = json[actionMethodPreProcessorsAttribute],
         actionMethodProcessors = json[actionMethodProcessorsAttribute],
-        classes = json[classesAttribute];
+        classes = json[classesAttribute],
+        functions = json[functionsAttribute];
 
   Map<String, dynamic> toJson() => {
         if (actionMethodPreProcessors.isNotEmpty)
           actionMethodPreProcessorsAttribute: actionMethodPreProcessors,
         if (actionMethodProcessors.isNotEmpty)
           actionMethodProcessorsAttribute: actionMethodProcessors,
+        if (functions.isNotEmpty) functionsAttribute: functions,
         if (classes.isNotEmpty) classesAttribute: classes,
       };
+
+  static List<ClassInfo> _createClasses(LibraryReader library) {
+    return library.classes
+        .where((e) => _isNeededClass(e))
+        .map((e) => ClassInfo.fromElement(e))
+        .toList();
+  }
+
+  static bool _isNeededClass(ClassElement element) {
+    return element.isPublic &&
+        !element.source.fullName.contains('lib/reflect_');
+  }
+
+  static List<ExecutableInfo> _createFunctions(LibraryReader library) {
+    return library.allElements
+        .where((e) => _isNeededFunction(e))
+        .map((e) => ExecutableInfo.fromElement(e))
+        .toList();
+  }
+
+  static bool _isNeededFunction(Element element) {
+    return element is FunctionElement &&
+        element.isPublic &&
+        (_isPotentialServiceObjectFactoryFunction(element) ||
+            _isActionMethodPreProcessorFunction(element) ||
+            _isActionMethodProcessorFunction(element));
+  }
+
+  static _isPotentialServiceObjectFactoryFunction(FunctionElement element) {
+    const factory = 'Factory';
+    return element.name.endsWith(factory) &&
+        element.name.length > factory.length &&
+        element.returnType != null &&
+        element.returnType.element.name != voidName;
+  }
+
+  static bool _isActionMethodPreProcessorFunction(FunctionElement element) {
+    String preProcessorAnnotation = '@' + (ActionMethodPreProcessor).toString();
+    return element.returnType.element == null &&
+        (element.parameters.length == 1 || element.parameters.length == 2) &&
+        element.parameters[0].type.element.name ==
+            actionMethodPreProcessorContextName &&
+        element.metadata.toString().contains(preProcessorAnnotation);
+  }
+
+  static bool _isActionMethodProcessorFunction(FunctionElement element) {
+    String processorAnnotation = '@' + (ActionMethodProcessor).toString();
+    return (element.parameters.length == 1 || element.parameters.length == 2) &&
+        element.parameters[0].type.element.name ==
+            actionMethodPreProcessorContextName &&
+        element.metadata.toString().contains(processorAnnotation);
+  }
 }
 
-///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
 class ClassInfo {
   static const typeAttribute = 'type';
   static const annotationsAttribute = 'annotations';
@@ -50,14 +114,6 @@ class ClassInfo {
   final List<AnnotationInfo> annotations;
   final List<ExecutableInfo> methods;
   final List<PropertyInfo> properties;
-
-  static bool isNeeded(ClassElement element) {
-    if (!element.isPublic) return false;
-    if (element.source.fullName.contains('lib/reflect_'))
-      //domain classes and service classes are the only classes of interest
-      return false;
-    return true;
-  }
 
   ClassInfo.fromElement(Element element)
       : type = TypeInfo.fromElement(element),
@@ -77,18 +133,43 @@ class ClassInfo {
         if (methods.isNotEmpty) methodsAttribute: methods,
         if (properties.isNotEmpty) propertiesAttribute: properties
       };
-}
 
-///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
-List<ClassInfo> createClasses(LibraryReader library) {
-  List<ClassInfo> classes = [];
-  for (Element element in library.allElements) {
-    if (element is ClassElement && ClassInfo.isNeeded(element)) {
-      ClassInfo classInfo = ClassInfo.fromElement(element);
-      classes.add(classInfo);
-    }
+  static List<ExecutableInfo> _createMethods(ClassElement classElement) {
+    return classElement.methods
+        .where((e) => _isNeededMethod(e))
+        .map((e) => ExecutableInfo.fromElement(e))
+        .toList();
   }
-  return classes;
+
+  static bool _isNeededMethod(ExecutableElement executableElement) {
+    return executableElement.isPublic &&
+        executableElement.parameters.length <= 1;
+  }
+
+  static List<PropertyInfo> _createProperties(ClassElement classElement) {
+    List<PropertyInfo> properties = [];
+    var publicAccessors =
+        classElement.accessors.where((element) => element.isPublic);
+    var getterAccessorElements =
+        publicAccessors.where((element) => element.isGetter);
+    var setterAccessorElements =
+        publicAccessors.where((element) => element.isSetter);
+    var fieldElements =
+        classElement.fields.where((element) => element.isPublic);
+
+    for (PropertyAccessorElement getterAccessorElement
+        in getterAccessorElements) {
+      bool hasSetter = setterAccessorElements
+          .any((element) => element.name == getterAccessorElement.name + "=");
+      FieldElement fieldElement = fieldElements
+          .firstWhere((element) => element.name == getterAccessorElement.name);
+
+      PropertyInfo property = PropertyInfo.fromElements(
+          getterAccessorElement, hasSetter, fieldElement);
+      properties.add(property);
+    }
+    return properties;
+  }
 }
 
 class TypeInfo {
@@ -106,8 +187,10 @@ class TypeInfo {
         genericTypes = const [];
 
   TypeInfo.fromDartType(DartType dartType)
-      : library = dartType.element.source.fullName,
+      : library =dartType.element.source.fullName,
+        //TODO
         name = dartType.element.name,
+        //TODO
         genericTypes = _createGenericTypes(dartType);
 
   TypeInfo.fromJson(Map<String, dynamic> json)
@@ -180,6 +263,7 @@ List<AnnotationInfo> _createAnnotations(Element element) {
   return annotations;
 }
 
+/// Information for dart functions and methods
 class ExecutableInfo {
   static const nameAttribute = 'name';
   static const returnTypeAttribute = 'returnType';
@@ -205,31 +289,28 @@ class ExecutableInfo {
 
   Map<String, dynamic> toJson() => {
         nameAttribute: name,
-        returnTypeAttribute: returnType,
+        if (returnType != null) returnTypeAttribute: returnType,
         if (parameterTypes.isNotEmpty) parameterTypesAttribute: parameterTypes,
         if (annotations.isNotEmpty) annotationsAttribute: annotations
       };
 
-  static bool isNeededMethod(ExecutableElement executableElement) {
-    return executableElement.isPublic &&
-        executableElement.parameters.length <= 1;
-  }
-
-  static List<TypeInfo> _createParameterTypes(MethodElement methodElement) {
-    return methodElement.parameters
+  static List<TypeInfo> _createParameterTypes(
+      ExecutableElement executableElement) {
+    return executableElement.parameters
         .map((p) => TypeInfo.fromDartType(p.type))
         .toList();
   }
 
-  static TypeInfo _createReturnType(MethodElement methodElement) =>
-      TypeInfo.fromDartType(methodElement.returnType);
-}
+  static TypeInfo _createReturnType(ExecutableElement executableElement) {
+    DartType returnType=executableElement.returnType;
+    var returnTypeVoid = returnType.element==null;
+    if (returnTypeVoid) {
+      return null;
+    } else {
+      return TypeInfo.fromDartType(returnType);
+    }
+  }
 
-List<ExecutableInfo> _createMethods(ClassElement classElement) {
-  return classElement.methods
-      .where((e) => ExecutableInfo.isNeededMethod(e))
-      .map((e) => ExecutableInfo.fromElement(e))
-      .toList();
 }
 
 /// TODO: explain what a property is.
@@ -272,29 +353,4 @@ class PropertyInfo {
     annotations.addAll(_createAnnotations(fieldElement));
     return annotations;
   }
-}
-
-/// The [ReflectFramework] recognized a property if there is property with a public getter accessor. It may have a public setter accessor.
-List<PropertyInfo> _createProperties(ClassElement classElement) {
-  List<PropertyInfo> properties = [];
-  var publicAccessors =
-      classElement.accessors.where((element) => element.isPublic);
-  var getterAccessorElements =
-      publicAccessors.where((element) => element.isGetter);
-  var setterAccessorElements =
-      publicAccessors.where((element) => element.isSetter);
-  var fieldElements = classElement.fields.where((element) => element.isPublic);
-
-  for (PropertyAccessorElement getterAccessorElement
-      in getterAccessorElements) {
-    bool hasSetter = setterAccessorElements
-        .any((element) => element.name == getterAccessorElement.name + "=");
-    FieldElement fieldElement = fieldElements
-        .firstWhere((element) => element.name == getterAccessorElement.name);
-
-    PropertyInfo property = PropertyInfo.fromElements(
-        getterAccessorElement, hasSetter, fieldElement);
-    properties.add(property);
-  }
-  return properties;
 }

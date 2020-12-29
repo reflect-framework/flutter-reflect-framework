@@ -6,14 +6,14 @@ import 'package:source_gen/source_gen.dart';
 class ActionMethodProcessorInfo {
   static const typeAttribute = 'type';
   static const functionNameAttribute = 'functionName';
-  static const orderAttribute = 'order';
+  static const indexAttribute = 'index';
   static const requiredAnnotationAttribute = 'requiredAnnotation';
   static const parameterTypeAttribute = 'parameterType';
   static const parameterHasDomainClassAnnotationAttribute =
       'parameterHasDomainClassAnnotation';
 
   final TypeInfo type;
-  final double order;
+  final double index;
   final String requiredAnnotation;
   final TypeInfo parameterType;
   final bool parameterHasDomainClassAnnotation;
@@ -31,7 +31,7 @@ class ActionMethodProcessorInfo {
 
   ActionMethodProcessorInfo.fromElement(Element element)
       : type = TypeInfo.fromElement(element),
-        order = _order(element),
+        index = _index(element),
         requiredAnnotation = _requiredAnnotation(element),
         parameterType = _parameterType(element),
         parameterHasDomainClassAnnotation =
@@ -41,7 +41,7 @@ class ActionMethodProcessorInfo {
 
   ActionMethodProcessorInfo.fromJson(Map<String, dynamic> json)
       : type = json[typeAttribute],
-        order = json[orderAttribute],
+        index = json[indexAttribute],
         requiredAnnotation = json[requiredAnnotationAttribute],
         parameterType = json[parameterTypeAttribute],
         parameterHasDomainClassAnnotation =
@@ -49,7 +49,7 @@ class ActionMethodProcessorInfo {
 
   Map<String, dynamic> toJson() => {
         typeAttribute: type,
-        orderAttribute: order,
+        indexAttribute: index,
         if (requiredAnnotation != null)
           requiredAnnotationAttribute: requiredAnnotation,
         if (parameterType != null) parameterTypeAttribute: parameterType,
@@ -84,12 +84,12 @@ class ActionMethodProcessorInfo {
     return false;
   }
 
-  static double _order(Element element) {
+  static double _index(Element element) {
     for (ElementAnnotation e in element.metadata) {
       if (e.toString().startsWith('@ActionMethodProcessor')) {
         var dartObject = e.computeConstantValue();
         ConstantReader reader = ConstantReader(dartObject);
-        return reader.peek('order').doubleValue;
+        return reader.peek('index').doubleValue;
       }
     }
     final defaultWhenNotFound = 200.0;

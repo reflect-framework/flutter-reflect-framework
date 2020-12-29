@@ -110,11 +110,12 @@
                     },
                     {
                          "type": {
-                              "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor.dart",
+                              "library": "/reflect_framework/lib/reflect_annotations.dart",
                               "name": "ActionMethodPreProcessor"
                          },
                          "values": {
-                              "order": 11.0
+                              "index": 11.0,
+                              "actionMethodMustHaveProcessDirectlyAnnotation": false
                          }
                     }
                ],
@@ -134,17 +135,18 @@
                          "annotations": [
                               {
                                    "type": {
-                                        "library": "/reflect_framework/lib/reflect_meta_domain_object.dart",
+                                        "library": "/reflect_framework/lib/reflect_annotations.dart",
                                         "name": "DomainClass"
                                    }
                               },
                               {
                                    "type": {
-                                        "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor.dart",
+                                        "library": "/reflect_framework/lib/reflect_annotations.dart",
                                         "name": "ActionMethodPreProcessor"
                                    },
                                    "values": {
-                                        "order": 22.0
+                                        "index": 22.0,
+                                        "actionMethodMustHaveProcessDirectlyAnnotation": false
                                    }
                               }
                          ]
@@ -170,17 +172,18 @@
                          "annotations": [
                               {
                                    "type": {
-                                        "library": "/reflect_framework/lib/reflect_meta_domain_object.dart",
+                                        "library": "/reflect_framework/lib/reflect_annotations.dart",
                                         "name": "DomainClass"
                                    }
                               },
                               {
                                    "type": {
-                                        "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor.dart",
+                                        "library": "/reflect_framework/lib/reflect_annotations.dart",
                                         "name": "ActionMethodPreProcessor"
                                    },
                                    "values": {
-                                        "order": 33.0
+                                        "index": 33.0,
+                                        "actionMethodMustHaveProcessDirectlyAnnotation": false
                                    }
                               }
                          ]
@@ -211,17 +214,18 @@
                          "annotations": [
                               {
                                    "type": {
-                                        "library": "/reflect_framework/lib/reflect_meta_domain_object.dart",
+                                        "library": "/reflect_framework/lib/reflect_annotations.dart",
                                         "name": "DomainClass"
                                    }
                               },
                               {
                                    "type": {
-                                        "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor.dart",
+                                        "library": "/reflect_framework/lib/reflect_annotations.dart",
                                         "name": "ActionMethodPreProcessor"
                                    },
                                    "values": {
-                                        "order": 111.0
+                                        "index": 111.0,
+                                        "actionMethodMustHaveProcessDirectlyAnnotation": false
                                    }
                               }
                          ]
@@ -236,17 +240,18 @@
                          "annotations": [
                               {
                                    "type": {
-                                        "library": "/reflect_framework/lib/reflect_meta_domain_object.dart",
+                                        "library": "/reflect_framework/lib/reflect_annotations.dart",
                                         "name": "DomainClass"
                                    }
                               },
                               {
                                    "type": {
-                                        "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor.dart",
+                                        "library": "/reflect_framework/lib/reflect_annotations.dart",
                                         "name": "ActionMethodPreProcessor"
                                    },
                                    "values": {
-                                        "order": 222.0
+                                        "index": 222.0,
+                                        "actionMethodMustHaveProcessDirectlyAnnotation": false
                                    }
                               }
                          ]
