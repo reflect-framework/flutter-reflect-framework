@@ -161,10 +161,12 @@
                                    }
                               ]
                          },
-                         "parameterType": {
-                              "library": "dart:core/string.dart",
-                              "name": "String"
-                         },
+                         "parameterTypes": [
+                              {
+                                   "library": "dart:core/string.dart",
+                                   "name": "String"
+                              }
+                         ],
                          "annotations": [
                               {
                                    "type": {

@@ -4,8 +4,8 @@ import 'package:reflect_framework/reflect_meta_action_method_pre_processor_info.
 import 'package:reflect_framework/reflect_meta_action_method_processor_info.dart';
 import 'package:source_gen/source_gen.dart';
 
-///Used by the [ReflectInfoJsonBuilder] to create intermediate json files to generate meta code later by another builder (TODO link to builder).
-///The meta data comes from source files using the [LibraryReader] class from the source_gen package
+/// Used by the [ReflectInfoJsonBuilder] to create intermediate json files to generate meta code later by another builder (TODO link to builder).
+/// The meta data comes from source files using the [LibraryReader] class from the source_gen package
 class ReflectInfo {
   static const actionMethodPreProcessorsAttribute = 'actionMethodPreProcessors';
   static const actionMethodProcessorsAttribute = 'actionMethodProcessors';
@@ -183,30 +183,30 @@ List<AnnotationInfo> _createAnnotations(Element element) {
 class MethodInfo {
   static const nameAttribute = 'name';
   static const returnTypeAttribute = 'returnType';
-  static const parameterTypeAttribute = 'parameterType';
+  static const parameterTypesAttribute = 'parameterTypes';
   static const annotationsAttribute = 'annotations';
 
   final String name;
   final TypeInfo returnType;
-  final TypeInfo parameterType;
+  final List<TypeInfo> parameterTypes;
   final List<AnnotationInfo> annotations;
 
   MethodInfo.fromElement(MethodElement methodElement)
       : name = methodElement.name,
         returnType = _createReturnType(methodElement),
-        parameterType = _createParameterType(methodElement),
+        parameterTypes = _createParameterTypes(methodElement),
         annotations = _createAnnotations(methodElement);
 
   MethodInfo.fromJson(Map<String, dynamic> json)
       : name = json[nameAttribute],
         returnType = json[returnTypeAttribute],
-        parameterType = json[parameterTypeAttribute],
+        parameterTypes = json[parameterTypesAttribute],
         annotations = json[annotationsAttribute];
 
   Map<String, dynamic> toJson() => {
         nameAttribute: name,
         returnTypeAttribute: returnType,
-        if (parameterType != null) parameterTypeAttribute: parameterType,
+        if (parameterTypes.isNotEmpty) parameterTypesAttribute: parameterTypes,
         if (annotations.isNotEmpty) annotationsAttribute: annotations
       };
 
@@ -217,12 +217,8 @@ class MethodInfo {
     return true;
   }
 
-  static TypeInfo _createParameterType(MethodElement methodElement) {
-    if (methodElement.parameters.length == 1) {
-      return TypeInfo.fromDartType(methodElement.parameters[0].type);
-    } else {
-      return null;
-    }
+  static List<TypeInfo> _createParameterTypes(MethodElement methodElement) {
+    return  methodElement.parameters.map((p) => TypeInfo.fromDartType(p.type)).toList();
   }
 
   static TypeInfo _createReturnType(MethodElement methodElement) =>
