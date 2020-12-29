@@ -1,48 +1,4 @@
 {
-     "actionMethodProcessors": [
-          {
-               "type": {
-                    "library": "/reflect_framework/lib/reflect_meta_action_method_processor_impl.dart",
-                    "name": "showPopupTextForMethodsReturningVoid"
-               },
-               "index": 100.0
-          },
-          {
-               "type": {
-                    "library": "/reflect_framework/lib/reflect_meta_action_method_processor_impl.dart",
-                    "name": "showStringInDialog"
-               },
-               "index": 102.0,
-               "parameterType": {
-                    "library": "dart:core/string.dart",
-                    "name": "String"
-               }
-          },
-          {
-               "type": {
-                    "library": "/reflect_framework/lib/reflect_meta_action_method_processor_impl.dart",
-                    "name": "showDomainObjectInReadonlyFormTab"
-               },
-               "index": 110.0,
-               "parameterType": {
-                    "library": "dart:core/object.dart",
-                    "name": "Object"
-               },
-               "parameterHasDomainClassAnnotation": true
-          },
-          {
-               "type": {
-                    "library": "/reflect_framework/lib/reflect_meta_action_method_processor_impl.dart",
-                    "name": "showListInTableTab"
-               },
-               "index": 111.0,
-               "parameterType": {
-                    "library": "dart:core/list.dart",
-                    "name": "List"
-               },
-               "parameterHasDomainClassAnnotation": true
-          }
-     ],
      "functions": [
           {
                "name": "showPopupTextForMethodsReturningVoid",

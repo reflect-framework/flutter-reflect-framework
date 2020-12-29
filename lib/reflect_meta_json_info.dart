@@ -1,8 +1,6 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:reflect_framework/reflect_annotations.dart';
-import 'package:reflect_framework/reflect_meta_action_method_pre_processor_info.dart';
-import 'package:reflect_framework/reflect_meta_action_method_processor_info.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Used by the [ReflectInfoJsonBuilder] to create intermediate json files to generate meta code later by another builder (TODO link to builder).
@@ -20,8 +18,6 @@ class ReflectInfo {
   static const actionMethodPreProcessorContextName =
       'ActionMethodPreProcessorContext';
 
-  final List<ActionMethodPreProcessorInfo> actionMethodPreProcessors;
-  final List<ActionMethodProcessorInfo> actionMethodProcessors;
   final List<ExecutableInfo> functions;
   final List<ClassInfo> classes;
 
@@ -30,23 +26,14 @@ class ReflectInfo {
   //TODO add TranslatableTextAnnotations
 
   ReflectInfo.fromLibrary(LibraryReader library)
-      : this.actionMethodPreProcessors =
-            createActionMethodPreProcessors(library),
-        this.actionMethodProcessors = createActionMethodProcessors(library),
-        this.functions = _createFunctions(library),
+      : this.functions = _createFunctions(library),
         this.classes = _createClasses(library);
 
   ReflectInfo.fromJson(Map<String, dynamic> json)
-      : actionMethodPreProcessors = json[actionMethodPreProcessorsAttribute],
-        actionMethodProcessors = json[actionMethodProcessorsAttribute],
-        classes = json[classesAttribute],
+      : classes = json[classesAttribute],
         functions = json[functionsAttribute];
 
   Map<String, dynamic> toJson() => {
-        if (actionMethodPreProcessors.isNotEmpty)
-          actionMethodPreProcessorsAttribute: actionMethodPreProcessors,
-        if (actionMethodProcessors.isNotEmpty)
-          actionMethodProcessorsAttribute: actionMethodProcessors,
         if (functions.isNotEmpty) functionsAttribute: functions,
         if (classes.isNotEmpty) classesAttribute: classes,
       };

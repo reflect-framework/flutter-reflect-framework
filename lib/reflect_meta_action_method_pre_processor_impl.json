@@ -1,47 +1,4 @@
 {
-     "actionMethodPreProcessors": [
-          {
-               "type": {
-                    "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
-                    "name": "executeDirectlyForMethodsWithoutParameter"
-               },
-               "index": 100.0
-          },
-          {
-               "type": {
-                    "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
-                    "name": "editDomainObjectParameterInForm"
-               },
-               "index": 102.0,
-               "parameterType": {
-                    "library": "dart:core/object.dart",
-                    "name": "Object"
-               },
-               "parameterHasDomainClassAnnotation": true
-          },
-          {
-               "type": {
-                    "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
-                    "name": "editStringParameterInDialog"
-               },
-               "index": 103.0,
-               "parameterType": {
-                    "library": "dart:core/string.dart",
-                    "name": "String"
-               }
-          },
-          {
-               "type": {
-                    "library": "/reflect_framework/lib/reflect_meta_action_method_pre_processor_impl.dart",
-                    "name": "executeDirectlyForMethodsWithProcessDirectlyAnnotation"
-               },
-               "index": 150.0,
-               "parameterType": {
-                    "library": "dart:core/object.dart",
-                    "name": "Object"
-               }
-          }
-     ],
      "functions": [
           {
                "name": "executeDirectlyForMethodsWithoutParameter",
