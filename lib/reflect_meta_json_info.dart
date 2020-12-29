@@ -48,7 +48,7 @@ class ClassInfo {
 
   final TypeInfo type;
   final List<AnnotationInfo> annotations;
-  final List<MethodInfo> methods;
+  final List<ExecutableInfo> methods;
   final List<PropertyInfo> properties;
 
   static bool isNeeded(ClassElement element) {
@@ -180,7 +180,7 @@ List<AnnotationInfo> _createAnnotations(Element element) {
   return annotations;
 }
 
-class MethodInfo {
+class ExecutableInfo {
   static const nameAttribute = 'name';
   static const returnTypeAttribute = 'returnType';
   static const parameterTypesAttribute = 'parameterTypes';
@@ -191,13 +191,13 @@ class MethodInfo {
   final List<TypeInfo> parameterTypes;
   final List<AnnotationInfo> annotations;
 
-  MethodInfo.fromElement(MethodElement methodElement)
-      : name = methodElement.name,
-        returnType = _createReturnType(methodElement),
-        parameterTypes = _createParameterTypes(methodElement),
-        annotations = _createAnnotations(methodElement);
+  ExecutableInfo.fromElement(ExecutableElement executableElement)
+      : name = executableElement.name,
+        returnType = _createReturnType(executableElement),
+        parameterTypes = _createParameterTypes(executableElement),
+        annotations = _createAnnotations(executableElement);
 
-  MethodInfo.fromJson(Map<String, dynamic> json)
+  ExecutableInfo.fromJson(Map<String, dynamic> json)
       : name = json[nameAttribute],
         returnType = json[returnTypeAttribute],
         parameterTypes = json[parameterTypesAttribute],
@@ -210,31 +210,26 @@ class MethodInfo {
         if (annotations.isNotEmpty) annotationsAttribute: annotations
       };
 
-  static bool isNeeded(MethodElement methodElement) {
-    if (methodElement.isPrivate) return false;
-    if (methodElement.parameters.length > 1) return false;
-    //public and zero or one parameter
-    return true;
+  static bool isNeededMethod(ExecutableElement executableElement) {
+    return executableElement.isPublic &&
+        executableElement.parameters.length <= 1;
   }
 
   static List<TypeInfo> _createParameterTypes(MethodElement methodElement) {
-    return  methodElement.parameters.map((p) => TypeInfo.fromDartType(p.type)).toList();
+    return methodElement.parameters
+        .map((p) => TypeInfo.fromDartType(p.type))
+        .toList();
   }
 
   static TypeInfo _createReturnType(MethodElement methodElement) =>
       TypeInfo.fromDartType(methodElement.returnType);
 }
 
-List<MethodInfo> _createMethods(ClassElement classElement) {
-  List<MethodInfo> methods = [];
-  List<MethodElement> methodsElements = classElement.methods;
-  for (MethodElement methodElement in methodsElements) {
-    if (MethodInfo.isNeeded(methodElement)) {
-      MethodInfo method = MethodInfo.fromElement(methodElement);
-      methods.add(method);
-    }
-  }
-  return methods;
+List<ExecutableInfo> _createMethods(ClassElement classElement) {
+  return classElement.methods
+      .where((e) => ExecutableInfo.isNeededMethod(e))
+      .map((e) => ExecutableInfo.fromElement(e))
+      .toList();
 }
 
 /// TODO: explain what a property is.
