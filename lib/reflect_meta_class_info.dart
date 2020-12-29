@@ -1,6 +1,43 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
+import 'package:reflect_framework/reflect_meta_action_method_pre_processor_info.dart';
+import 'package:reflect_framework/reflect_meta_action_method_processor_info.dart';
 import 'package:source_gen/source_gen.dart';
+
+///Used by the [ReflectInfoJsonBuilder] to create intermediate json files to generate meta code later by another builder (TODO link to builder).
+///The meta data comes from source files using the [LibraryReader] class from the source_gen package
+class ReflectInfo {
+  static const actionMethodPreProcessorsAttribute = 'actionMethodPreProcessors';
+  static const actionMethodProcessorsAttribute = 'actionMethodProcessors';
+  static const classesAttribute = 'classes';
+
+  final List<ActionMethodPreProcessorInfo> actionMethodPreProcessors;
+  final List<ActionMethodProcessorInfo> actionMethodProcessors;
+  final List<ClassInfo> classes;
+
+  //TODO functions (ending with factory in name, when needed for service objects and as a replacement for ActionMethodPreProcessorInfo and ActionMethodProcessorInfo)
+  //TODO add enums (with texts)
+  //TODO add reflect texts
+
+  ReflectInfo.fromLibrary(LibraryReader library)
+      : this.actionMethodPreProcessors =
+            createActionMethodPreProcessors(library),
+        this.actionMethodProcessors = createActionMethodProcessors(library),
+        this.classes = createClasses(library);
+
+  ReflectInfo.fromJson(Map<String, dynamic> json)
+      : actionMethodPreProcessors = json[actionMethodPreProcessorsAttribute],
+        actionMethodProcessors = json[actionMethodProcessorsAttribute],
+        classes = json[classesAttribute];
+
+  Map<String, dynamic> toJson() => {
+        if (actionMethodPreProcessors.isNotEmpty)
+          actionMethodPreProcessorsAttribute: actionMethodPreProcessors,
+        if (actionMethodProcessors.isNotEmpty)
+          actionMethodProcessorsAttribute: actionMethodProcessors,
+        if (classes.isNotEmpty) classesAttribute: classes,
+      };
+}
 
 ///Used by [ReflectInfo] to create json files with meta data from source files using the source_gen package
 class ClassInfo {
@@ -192,22 +229,19 @@ class MethodInfo {
       TypeInfo.fromDartType(methodElement.returnType);
 }
 
-List<MethodInfo> _createMethods(Element element) {
+List<MethodInfo> _createMethods(ClassElement classElement) {
   List<MethodInfo> methods = [];
-  if (element is ClassElement) {
-    List<MethodElement> methodsElements = element.methods;
-    for (MethodElement methodElement in methodsElements) {
-      if (MethodInfo.isNeeded(methodElement)) {
-        MethodInfo method = MethodInfo.fromElement(methodElement);
-        methods.add(method);
-      }
+  List<MethodElement> methodsElements = classElement.methods;
+  for (MethodElement methodElement in methodsElements) {
+    if (MethodInfo.isNeeded(methodElement)) {
+      MethodInfo method = MethodInfo.fromElement(methodElement);
+      methods.add(method);
     }
   }
   return methods;
 }
 
 /// TODO: explain what a property is.
-/// TODO include [_createAnnotations]
 class PropertyInfo {
   static const nameAttribute = 'name';
   static const typeAttribute = 'type';
@@ -250,28 +284,26 @@ class PropertyInfo {
 }
 
 /// The [ReflectFramework] recognized a property if there is property with a public getter accessor. It may have a public setter accessor.
-List<PropertyInfo> _createProperties(Element element) {
+List<PropertyInfo> _createProperties(ClassElement classElement) {
   List<PropertyInfo> properties = [];
-  if (element is ClassElement) {
-    var publicAccessors =
-        element.accessors.where((element) => element.isPublic);
-    var getterAccessorElements =
-        publicAccessors.where((element) => element.isGetter);
-    var setterAccessorElements =
-        publicAccessors.where((element) => element.isSetter);
-    var fieldElements = element.fields.where((element) => element.isPublic);
+  var publicAccessors =
+      classElement.accessors.where((element) => element.isPublic);
+  var getterAccessorElements =
+      publicAccessors.where((element) => element.isGetter);
+  var setterAccessorElements =
+      publicAccessors.where((element) => element.isSetter);
+  var fieldElements = classElement.fields.where((element) => element.isPublic);
 
-    for (PropertyAccessorElement getterAccessorElement
-        in getterAccessorElements) {
-      bool hasSetter = setterAccessorElements
-          .any((element) => element.name == getterAccessorElement.name + "=");
-      FieldElement fieldElement = fieldElements
-          .firstWhere((element) => element.name == getterAccessorElement.name);
+  for (PropertyAccessorElement getterAccessorElement
+      in getterAccessorElements) {
+    bool hasSetter = setterAccessorElements
+        .any((element) => element.name == getterAccessorElement.name + "=");
+    FieldElement fieldElement = fieldElements
+        .firstWhere((element) => element.name == getterAccessorElement.name);
 
-      PropertyInfo property = PropertyInfo.fromElements(
-          getterAccessorElement, hasSetter, fieldElement);
-      properties.add(property);
-    }
+    PropertyInfo property = PropertyInfo.fromElements(
+        getterAccessorElement, hasSetter, fieldElement);
+    properties.add(property);
   }
   return properties;
 }

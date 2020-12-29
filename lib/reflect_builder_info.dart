@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:build/build.dart';
-import 'package:reflect_framework/reflect_meta_action_method_pre_processor_info.dart';
-import 'package:reflect_framework/reflect_meta_action_method_processor_info.dart';
 import 'package:reflect_framework/reflect_meta_class_info.dart';
 import 'package:source_gen/source_gen.dart';
 
@@ -34,35 +32,4 @@ class ReflectInfoJsonBuilder implements Builder {
   }
 }
 
-///Used by the [ReflectInfoJsonBuilder] to create json files with meta data from source files using the source_gen package
-class ReflectInfo {
-  static const actionMethodPreProcessorsAttribute = 'actionMethodPreProcessors';
-  static const actionMethodProcessorsAttribute = 'actionMethodProcessors';
-  static const classesAttribute = 'classes';
 
-  final List<ActionMethodPreProcessorInfo> actionMethodPreProcessors;
-  final List<ActionMethodProcessorInfo> actionMethodProcessors;
-  final List<ClassInfo> classes;
-  //TODO functions (ending with factory in name, when needed for serviceobjects)
-  //TODO add enums (with texts)
-  //TODO add reflect texts
-
-  ReflectInfo.fromLibrary(LibraryReader library)
-      : this.actionMethodPreProcessors =
-            createActionMethodPreProcessors(library),
-        this.actionMethodProcessors = createActionMethodProcessors(library),
-        this.classes = createClasses(library);
-
-  ReflectInfo.fromJson(Map<String, dynamic> json)
-      : actionMethodPreProcessors = json[actionMethodPreProcessorsAttribute],
-        actionMethodProcessors = json[actionMethodProcessorsAttribute],
-        classes = json[classesAttribute];
-
-  Map<String, dynamic> toJson() => {
-        if (actionMethodPreProcessors.isNotEmpty)
-          actionMethodPreProcessorsAttribute: actionMethodPreProcessors,
-        if (actionMethodProcessors.isNotEmpty)
-          actionMethodProcessorsAttribute: actionMethodProcessors,
-        if (classes.isNotEmpty) classesAttribute: classes,
-      };
-}
