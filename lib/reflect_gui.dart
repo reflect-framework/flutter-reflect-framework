@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:reflect_framework/reflect_annotations.dart';
 import 'package:reflect_framework/reflect_gui_tab.dart' as ReflectTabs;
 import 'package:reflect_framework/reflect_gui_tab.dart';
 import 'package:reflect_framework/reflect_localizations.dart';
@@ -196,6 +197,9 @@ class TabsIcon extends StatelessWidget {
                     child: Text('${Provider.of<Tabs>(context).length}')))));
   }
 
+  @Translation(keySuffix: 'titleTabs', englishText: 'Tabs:')
+  @Translation(keySuffix: 'buttonCloseOthers', englishText: 'Close others')
+  @Translation(keySuffix: 'buttonCloseAll', englishText: 'Close all')
   showTabSelectionDialog(BuildContext context) {
     return showDialog(
         context: context,

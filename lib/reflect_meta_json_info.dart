@@ -1,6 +1,5 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
-import 'package:reflect_framework/reflect_annotations.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Used by the [ReflectInfoJsonBuilder] to create intermediate json files to generate meta code later by another builder (TODO link to builder).
@@ -17,6 +16,12 @@ class ReflectInfo {
   // Maybe this is because build_runner can use code reflection and Flutter does not allow this???
   static const actionMethodPreProcessorContextName =
       'ActionMethodPreProcessorContext';
+
+  // We cant use ActionMethodPreProcessor type to convert it to a string,
+  // because its library uses a required annotation and thus imports from a UI package, which does not go will with build_runner.
+  // Maybe this is because build_runner can use code reflection and Flutter does not allow this???
+  static const preProcessorAnnotation = '@ActionMethodPreProcessor';
+  static const processorAnnotation = '@ActionMethodProcessor';
 
   final List<ExecutableInfo> functions;
   final List<ClassInfo> classes;
@@ -74,7 +79,6 @@ class ReflectInfo {
   }
 
   static bool _isActionMethodPreProcessorFunction(FunctionElement element) {
-    String preProcessorAnnotation = '@' + (ActionMethodPreProcessor).toString();
     return element.returnType.element == null &&
         (element.parameters.length == 1 || element.parameters.length == 2) &&
         element.parameters[0].type.element.name ==
@@ -83,7 +87,6 @@ class ReflectInfo {
   }
 
   static bool _isActionMethodProcessorFunction(FunctionElement element) {
-    String processorAnnotation = '@' + (ActionMethodProcessor).toString();
     return (element.parameters.length == 1 || element.parameters.length == 2) &&
         element.parameters[0].type.element.name ==
             actionMethodPreProcessorContextName &&
@@ -174,7 +177,7 @@ class TypeInfo {
         genericTypes = const [];
 
   TypeInfo.fromDartType(DartType dartType)
-      : library =dartType.element.source.fullName,
+      : library = dartType.element.source.fullName,
         //TODO
         name = dartType.element.name,
         //TODO
@@ -225,17 +228,28 @@ class AnnotationInfo {
       {typeAttribute: type, if (values.isNotEmpty) valuesAttribute: values};
 
   static Map<String, Object> _values(ElementAnnotation annotationElement) {
+    var dartObject = annotationElement.computeConstantValue();
+    ConstantReader reader = ConstantReader(dartObject);
+    Map<String, Object> values = {};
+    for (String name in _valueNames(annotationElement)) {
+      try {
+        Object value = reader.peek(name).literalValue;
+        values.putIfAbsent(name, () => value);
+      } catch (e) {
+        // We will skip the value, if we cant get it (value is likely null)
+      }
+    }
+    return values;
+  }
+
+  static List<String> _valueNames(ElementAnnotation annotationElement) {
     try {
-      List<ParameterElement> parameters =
-          (annotationElement.element as ConstructorElement).parameters;
-      var dartObject = annotationElement.computeConstantValue();
-      ConstantReader reader = ConstantReader(dartObject);
-      return {
-        for (ParameterElement parameter in parameters)
-          parameter.name: reader.peek(parameter.name).literalValue,
-      };
+      return (annotationElement.element as ConstructorElement)
+          .parameters
+          .map((p) => p.name)
+          .toList();
     } catch (e) {
-      return const {};
+      return const [];
     }
   }
 }
@@ -250,8 +264,8 @@ List<AnnotationInfo> _createAnnotations(Element element) {
   return annotations;
 }
 
-/// Information for dart functions and methods
 class ExecutableInfo {
+  /// Information for dart functions and methodsclass ExecutableInfo {
   static const nameAttribute = 'name';
   static const returnTypeAttribute = 'returnType';
   static const parameterTypesAttribute = 'parameterTypes';
@@ -289,15 +303,14 @@ class ExecutableInfo {
   }
 
   static TypeInfo _createReturnType(ExecutableElement executableElement) {
-    DartType returnType=executableElement.returnType;
-    var returnTypeVoid = returnType.element==null;
+    DartType returnType = executableElement.returnType;
+    var returnTypeVoid = returnType.element == null;
     if (returnTypeVoid) {
       return null;
     } else {
       return TypeInfo.fromDartType(returnType);
     }
   }
-
 }
 
 /// TODO: explain what a property is.
