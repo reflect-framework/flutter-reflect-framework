@@ -2,6 +2,18 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:source_gen/source_gen.dart';
 
+// We cant use ActionMethodPreProcessorContext type to convert it to a string,
+// because it contains BuildContext and thus imports from a UI package, which does not go will with build_runner.
+// Maybe this is because build_runner can use code reflection and Flutter does not allow this???
+const actionMethodPreProcessorContextName = 'ActionMethodPreProcessorContext';
+
+// We cant use ActionMethodPreProcessor type to convert it to a string,
+// because its library uses a required annotation and thus imports from a UI package, which does not go will with build_runner.
+// Maybe this is because build_runner can use code reflection and Flutter does not allow this???
+const preProcessorAnnotation = '@ActionMethodPreProcessor';
+const processorAnnotation = '@ActionMethodProcessor';
+const translationAnnotation = 'Translation';
+
 /// Used by the [ReflectInfoJsonBuilder] to create intermediate json files to generate meta code later by another builder (TODO link to builder).
 /// The meta data comes from source files using the [LibraryElement] class from the source_gen package
 class ReflectInfo {
@@ -10,18 +22,6 @@ class ReflectInfo {
   static const functionsAttribute = 'functions';
   static const classesAttribute = 'classes';
   static const voidName = 'void';
-
-  // We cant use ActionMethodPreProcessorContext type to convert it to a string,
-  // because it contains BuildContext and thus imports from a UI package, which does not go will with build_runner.
-  // Maybe this is because build_runner can use code reflection and Flutter does not allow this???
-  static const actionMethodPreProcessorContextName =
-      'ActionMethodPreProcessorContext';
-
-  // We cant use ActionMethodPreProcessor type to convert it to a string,
-  // because its library uses a required annotation and thus imports from a UI package, which does not go will with build_runner.
-  // Maybe this is because build_runner can use code reflection and Flutter does not allow this???
-  static const preProcessorAnnotation = '@ActionMethodPreProcessor';
-  static const processorAnnotation = '@ActionMethodProcessor';
 
   final List<ExecutableInfo> functions;
   final List<ClassInfo> classes;
@@ -38,16 +38,23 @@ class ReflectInfo {
       : classes = json[classesAttribute],
         functions = json[functionsAttribute];
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() =>
+      {
         if (functions.isNotEmpty) functionsAttribute: functions,
         if (classes.isNotEmpty) classesAttribute: classes,
       };
 
   static List<ClassInfo> _createClasses(LibraryReader library) {
-    return library.classes
-        .where((e) => _isNeededClass(e))
-        .map((e) => ClassInfo.fromElement(e))
-        .toList();
+    List<ClassInfo> classes = [];
+    for (ClassElement classElement in library.classes) {
+      if (_isNeededClass(classElement)) {
+        classes.add(ClassInfo.fromElement(classElement));
+      } else if (_classContainsTranslationAnnotations(classElement)) {
+        classes.add(ClassInfo.fromElementWithTranslationAnnotationsOnly(
+            classElement));
+      }
+    }
+    return classes;
   }
 
   static bool _isNeededClass(ClassElement element) {
@@ -56,18 +63,31 @@ class ReflectInfo {
   }
 
   static List<ExecutableInfo> _createFunctions(LibraryReader library) {
-    return library.allElements
-        .where((e) => _isNeededFunction(e))
-        .map((e) => ExecutableInfo.fromElement(e))
-        .toList();
+    List<ExecutableInfo> functions=[];
+    for (Element element in library.allElements) {
+      if (_isPublicFunction(element)) {
+        if (_isNeededFunction(element)) {
+          functions.add(ExecutableInfo.fromElement(element));
+        } else if (_containsTranslationAnnotations(element)) {
+          functions.add(
+              ExecutableInfo.fromElementWithTranslationAnnotationsOnly(
+                  element));
+        }
+      }
+    }
+    return functions;
   }
 
-  static bool _isNeededFunction(Element element) {
+  static bool _isPublicFunction(Element element) {
     return element is FunctionElement &&
-        element.isPublic &&
-        (_isPotentialServiceObjectFactoryFunction(element) ||
-            _isActionMethodPreProcessorFunction(element) ||
-            _isActionMethodProcessorFunction(element));
+        element.isPublic;
+  }
+
+  static bool _isNeededFunction(FunctionElement element) {
+    return _isPotentialServiceObjectFactoryFunction(element) ||
+        _isActionMethodPreProcessorFunction(element) ||
+        _isActionMethodProcessorFunction(element) ||
+        _containsTranslationAnnotations(element);
   }
 
   static _isPotentialServiceObjectFactoryFunction(FunctionElement element) {
@@ -92,6 +112,14 @@ class ReflectInfo {
             actionMethodPreProcessorContextName &&
         element.metadata.toString().contains(processorAnnotation);
   }
+
+  static bool _classContainsTranslationAnnotations(ClassElement classElement) {
+    return _containsTranslationAnnotations(classElement) ||
+        classElement.accessors
+            .any((element) => _containsTranslationAnnotations(element)) ||
+        classElement.methods
+            .any((element) => _containsTranslationAnnotations(element));
+  }
 }
 
 class ClassInfo {
@@ -105,11 +133,18 @@ class ClassInfo {
   final List<ExecutableInfo> methods;
   final List<PropertyInfo> properties;
 
-  ClassInfo.fromElement(Element element)
+  ClassInfo.fromElement(ClassElement element)
       : type = TypeInfo.fromElement(element),
         annotations = _createAnnotations(element),
         methods = _createMethods(element),
         properties = _createProperties(element);
+
+  ClassInfo.fromElementWithTranslationAnnotationsOnly(ClassElement element)
+      : type = TypeInfo.fromElement(element),
+        annotations = _createAnnotations(
+            element, forTranslationAnnotationsOnly: true),
+        methods = _createMethodsWithTranslationAnnotationsOnly(element),
+        properties = _createPropertiesWithTranslationAnnotationsOnly(element);
 
   ClassInfo.fromJson(Map<String, dynamic> json)
       : type = json[typeAttribute],
@@ -117,7 +152,8 @@ class ClassInfo {
         methods = json[methodsAttribute],
         properties = json[propertiesAttribute];
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() =>
+      {
         typeAttribute: type,
         if (annotations.isNotEmpty) annotationsAttribute: annotations,
         if (methods.isNotEmpty) methodsAttribute: methods,
@@ -131,6 +167,14 @@ class ClassInfo {
         .toList();
   }
 
+  static List<ExecutableInfo> _createMethodsWithTranslationAnnotationsOnly(
+      ClassElement classElement) {
+    return classElement.methods
+        .where((e) => _containsTranslationAnnotations(e))
+        .map((e) => ExecutableInfo.fromElementWithTranslationAnnotationsOnly(e))
+        .toList();
+  }
+
   static bool _isNeededMethod(ExecutableElement executableElement) {
     return executableElement.isPublic &&
         executableElement.parameters.length <= 1;
@@ -139,16 +183,16 @@ class ClassInfo {
   static List<PropertyInfo> _createProperties(ClassElement classElement) {
     List<PropertyInfo> properties = [];
     var publicAccessors =
-        classElement.accessors.where((element) => element.isPublic);
+    classElement.accessors.where((element) => element.isPublic);
     var getterAccessorElements =
-        publicAccessors.where((element) => element.isGetter);
+    publicAccessors.where((element) => element.isGetter);
     var setterAccessorElements =
-        publicAccessors.where((element) => element.isSetter);
+    publicAccessors.where((element) => element.isSetter);
     var fieldElements =
-        classElement.fields.where((element) => element.isPublic);
+    classElement.fields.where((element) => element.isPublic);
 
     for (PropertyAccessorElement getterAccessorElement
-        in getterAccessorElements) {
+    in getterAccessorElements) {
       bool hasSetter = setterAccessorElements
           .any((element) => element.name == getterAccessorElement.name + "=");
       FieldElement fieldElement = fieldElements
@@ -160,6 +204,36 @@ class ClassInfo {
     }
     return properties;
   }
+
+  static List<PropertyInfo> _createPropertiesWithTranslationAnnotationsOnly(
+      ClassElement classElement) {
+    List<PropertyInfo> properties = [];
+    var publicAccessors =
+    classElement.accessors.where((element) => element.isPublic);
+    var getterAccessorElements =
+    publicAccessors.where((element) => element.isGetter);
+    var setterAccessorElements =
+    publicAccessors.where((element) => element.isSetter);
+    var fieldElements =
+    classElement.fields.where((element) => element.isPublic);
+
+    for (PropertyAccessorElement getterAccessorElement
+    in getterAccessorElements) {
+      bool hasSetter = setterAccessorElements
+          .any((element) => element.name == getterAccessorElement.name + "=");
+      FieldElement fieldElement = fieldElements
+          .firstWhere((element) => element.name == getterAccessorElement.name);
+
+      if (_containsTranslationAnnotations(getterAccessorElement) || _containsTranslationAnnotations(fieldElement)) {
+        PropertyInfo property = PropertyInfo
+            .fromElementsWithTranslateAnnotationOnly(
+            getterAccessorElement, hasSetter, fieldElement);
+        properties.add(property);
+      }
+    }
+    return properties;
+  }
+
 }
 
 class TypeInfo {
@@ -178,9 +252,9 @@ class TypeInfo {
 
   TypeInfo.fromDartType(DartType dartType)
       : library = dartType.element.source.fullName,
-        //TODO
+  //TODO
         name = dartType.element.name,
-        //TODO
+  //TODO
         genericTypes = _createGenericTypes(dartType);
 
   TypeInfo.fromJson(Map<String, dynamic> json)
@@ -188,7 +262,8 @@ class TypeInfo {
         name = json[nameAttribute],
         genericTypes = json[genericTypesAttribute];
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() =>
+      {
         libraryAttribute: library,
         nameAttribute: name,
         if (genericTypes.isNotEmpty) genericTypesAttribute: genericTypes
@@ -217,7 +292,9 @@ class AnnotationInfo {
 
   AnnotationInfo.fromElement(ElementAnnotation annotationElement)
       : type = TypeInfo.fromDartType(
-            annotationElement.computeConstantValue().type),
+      annotationElement
+          .computeConstantValue()
+          .type),
         values = _values(annotationElement);
 
   AnnotationInfo.fromJson(Map<String, dynamic> json)
@@ -233,7 +310,9 @@ class AnnotationInfo {
     Map<String, Object> values = {};
     for (String name in _valueNames(annotationElement)) {
       try {
-        Object value = reader.peek(name).literalValue;
+        Object value = reader
+            .peek(name)
+            .literalValue;
         values.putIfAbsent(name, () => value);
       } catch (e) {
         // We will skip the value, if we cant get it (value is likely null)
@@ -254,18 +333,27 @@ class AnnotationInfo {
   }
 }
 
-List<AnnotationInfo> _createAnnotations(Element element) {
+bool _containsTranslationAnnotations(Element element) {
+  return element.metadata.toString().contains(translationAnnotation);
+}
+
+List<AnnotationInfo> _createAnnotations(Element element,
+    {bool forTranslationAnnotationsOnly = false}) {
   List<AnnotationInfo> annotations = [];
   List<ElementAnnotation> annotationElements = element.metadata;
   for (ElementAnnotation annotationElement in annotationElements) {
     AnnotationInfo annotation = AnnotationInfo.fromElement(annotationElement);
-    annotations.add(annotation);
+    if (!forTranslationAnnotationsOnly ||
+        annotation.type.name == translationAnnotation) {
+      annotations.add(annotation);
+    }
   }
   return annotations;
 }
 
+/// Information for dart functions and methods
 class ExecutableInfo {
-  /// Information for dart functions and methodsclass ExecutableInfo {
+
   static const nameAttribute = 'name';
   static const returnTypeAttribute = 'returnType';
   static const parameterTypesAttribute = 'parameterTypes';
@@ -282,13 +370,22 @@ class ExecutableInfo {
         parameterTypes = _createParameterTypes(executableElement),
         annotations = _createAnnotations(executableElement);
 
+  ExecutableInfo.fromElementWithTranslationAnnotationsOnly(
+      ExecutableElement executableElement)
+      : name = executableElement.name,
+        returnType = null,
+        parameterTypes = const [],
+        annotations = _createAnnotations(
+            executableElement, forTranslationAnnotationsOnly: true);
+
   ExecutableInfo.fromJson(Map<String, dynamic> json)
       : name = json[nameAttribute],
         returnType = json[returnTypeAttribute],
         parameterTypes = json[parameterTypesAttribute],
         annotations = json[annotationsAttribute];
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() =>
+      {
         nameAttribute: name,
         if (returnType != null) returnTypeAttribute: returnType,
         if (parameterTypes.isNotEmpty) parameterTypesAttribute: parameterTypes,
@@ -325,11 +422,19 @@ class PropertyInfo {
   final bool hasSetter;
   final List<AnnotationInfo> annotations;
 
-  PropertyInfo.fromElements(PropertyAccessorElement propertyAccessorElement,
+  PropertyInfo.fromElements(PropertyAccessorElement propertyGetterElement,
+      this.hasSetter, FieldElement fieldElement)
+      : name = propertyGetterElement.name,
+        type = TypeInfo.fromDartType(propertyGetterElement.returnType),
+        annotations = _createAnnotationsFrom2Elements(
+            propertyGetterElement, fieldElement);
+
+  PropertyInfo.fromElementsWithTranslateAnnotationOnly(
+      PropertyAccessorElement propertyAccessorElement,
       this.hasSetter, FieldElement fieldElement)
       : name = propertyAccessorElement.name,
         type = TypeInfo.fromDartType(propertyAccessorElement.returnType),
-        annotations = _createAnnotationsFrom2Elements(
+        annotations = _createAnnotationsFrom2ElementsWithTranslateAnnotationOnly(
             propertyAccessorElement, fieldElement);
 
   PropertyInfo.fromJson(Map<String, dynamic> json)
@@ -338,7 +443,8 @@ class PropertyInfo {
         type = json[typeAttribute],
         annotations = json[annotationsAttribute];
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() =>
+      {
         nameAttribute: name,
         hasSetterAttribute: hasSetter,
         typeAttribute: type,
@@ -353,4 +459,16 @@ class PropertyInfo {
     annotations.addAll(_createAnnotations(fieldElement));
     return annotations;
   }
+
+  static _createAnnotationsFrom2ElementsWithTranslateAnnotationOnly(
+      PropertyAccessorElement propertyAccessorElement,
+      FieldElement fieldElement) {
+    List<AnnotationInfo> annotations = [];
+    annotations.addAll(_createAnnotations(
+        propertyAccessorElement, forTranslationAnnotationsOnly: true));
+    annotations.addAll(
+        _createAnnotations(fieldElement, forTranslationAnnotationsOnly: true));
+    return annotations;
+  }
+
 }

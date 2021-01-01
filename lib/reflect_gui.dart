@@ -197,7 +197,7 @@ class TabsIcon extends StatelessWidget {
                     child: Text('${Provider.of<Tabs>(context).length}')))));
   }
 
-  @Translation(keySuffix: 'titleTabs', englishText: 'Tabs:')
+  @Translation(keySuffix: 'title', englishText: 'Tabs:')
   @Translation(keySuffix: 'buttonCloseOthers', englishText: 'Close others')
   @Translation(keySuffix: 'buttonCloseAll', englishText: 'Close all')
   showTabSelectionDialog(BuildContext context) {
