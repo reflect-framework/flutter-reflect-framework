@@ -5,13 +5,24 @@ targets:
         generate_for:
           - lib/**.dart
         enabled: True
+      reflect_framework|reflect_info_combining_builder:
+        enabled: True
 
 builders:
   reflect_info_builder:
     import: 'package:reflect_framework/reflect_builder_factory.dart'
     builder_factories: ['reflectInfoJsonBuilder']
     build_extensions:
-      .txt:
-        - .json
+      .dart:
+        - .reflect_info.json
+    build_to: source
+    auto_apply: root_package
+    runs_before: [reflect_info_combining_builder]
+  reflect_info_combining_builder:
+    import: 'package:reflect_framework/reflect_builder_factory.dart'
+    builder_factories: ['combiningReflectInfoBuilder']
+    build_extensions:
+      .dart:
+        - .reflect_info.json
     build_to: source
     auto_apply: root_package

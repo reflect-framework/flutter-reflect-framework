@@ -5,17 +5,17 @@ import 'package:build/build.dart';
 import 'package:reflect_framework/reflect_meta_json_info.dart';
 import 'package:source_gen/source_gen.dart';
 
-///Uses [ReflectInfo] to create json files with meta data from source files using the source_gen package
+///Uses [ReflectInfo] to create .reflect_info.json files with meta data from source files using the source_gen package
 class ReflectInfoJsonBuilder implements Builder {
   @override
   Map<String, List<String>> get buildExtensions => {
-        '.dart': ['.json']
+        '.dart': [ReflectInfo.jsonExtension]
       };
 
   @override
   FutureOr<void> build(BuildStep buildStep) async {
     AssetId source = buildStep.inputId;
-    AssetId destination = source.changeExtension('.json');
+    AssetId destination = source.changeExtension(ReflectInfo.jsonExtension);
 
     final resolver = buildStep.resolver;
     if (!await resolver.isLibrary(buildStep.inputId)) return;
