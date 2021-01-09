@@ -50,7 +50,7 @@ class ReflectMaterialApp extends StatelessWidget {
     return MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      title: Provider.of<ReflectFrameworkInfo>(context).application.title,
+      title: Provider.of<ReflectFrameworkInfo>(context).application.displayName,
       theme: reflectGuiApplication.lightTheme,
       darkTheme: reflectGuiApplication.darkTheme,
       home: Home(),
@@ -84,7 +84,7 @@ class ApplicationTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     Tabs tabs = Provider.of<Tabs>(context);
     String appTitle =
-        Provider.of<ReflectFrameworkInfo>(context).application.title;
+        Provider.of<ReflectFrameworkInfo>(context).application.displayName;
     return LayoutBuilder(builder: (_, dimens) {
       if (tabs.isEmpty) {
         return Text(appTitle);
@@ -297,7 +297,7 @@ class MainMenu extends StatelessWidget {
       height: 88.0, //TODO get from AppBar
       child: DrawerHeader(
         child: Text(
-            Provider.of<ReflectFrameworkInfo>(context).application.title,
+            Provider.of<ReflectFrameworkInfo>(context).application.displayName,
             style: Theme.of(context).primaryTextTheme.headline6),
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor,
@@ -370,7 +370,7 @@ class ApplicationTitleTab extends StatelessWidget {
     } else {
       return Center(
           child: Text(
-        '${applicationInfo.title}',
+        '${applicationInfo.displayName}',
         style: Theme.of(context).textTheme.headline3,
       ));
     }

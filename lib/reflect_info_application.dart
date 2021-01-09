@@ -1,25 +1,17 @@
 import 'dart:io';
 
-// import 'package:reflect_framework/reflect_info_service.dart';
-
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:reflect_framework/reflect_info_json.dart';
 
 /// The [ReflectFramework] creates an ApplicationInfo class (with [ApplicationClassInfoCode]) that implement [ApplicationInfo] for all classes that are recognized as [ServiceObject]s.
 class ApplicationInfoCode {
-  ApplicationInfoCode(ReflectJson reflectInfo) {
+  ApplicationInfoCode(ReflectJson reflectJson) {
     final lib = Library((b) => b.body.addAll([
           Class((b) => b
             ..name = 'ApplicationInfo'
             //..extend = refer('ClassInfo','package:reflect_framework/reflect_info_service.dart')
-            ..methods.add(Method((b) =>
-                b //TODO separate class with documentation
-                  ..name = 'title'
-                  ..type = MethodType.getter
-                  ..returns = refer('String')
-                  ..body = const Code(
-                      "return 'My first app';"))) // TODO get from a RefelctApplication class annotation or  method as @translation or get TranslatebaleString (Something like [Intl.message]) from a method
+            ..methods.add(ApplicationDisplayName.createFor(reflectJson))
             ..methods
                 .add(Method((b) => b //TODO separate class with documentation
                   ..name = 'imagePath'
@@ -37,5 +29,19 @@ class ApplicationInfoCode {
 
     File file = File('lib/reflect_generated.dart');
     file.writeAsString(dartCode);
+  }
+}
+
+/// TODO DartDoc explaining the application title
+class ApplicationDisplayName {
+  static Method createFor(ReflectJson reflectJson) {
+    // TODO get from a RefelctApplication class
+    // TODO make it translatable with @Translation notation and Translations
+
+    return Method((b) => b
+      ..name = 'displayName'
+      ..type = MethodType.getter
+      ..returns = refer('String')
+      ..body = const Code("return 'My first app';"));
   }
 }
