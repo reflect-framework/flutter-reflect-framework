@@ -29,7 +29,6 @@ dependencies:
   flutter_spinkit: ^4.1.2+1
   http: ^0.12.2
   flutter_typeahead: ^1.9.1
-  intl: ^0.16.1
   build: ^1.6.0
   source_gen: ^0.9.10+1
 
@@ -38,6 +37,7 @@ dev_dependencies:
     sdk: flutter
   build_config: ^0.4.5
   build_runner: ^1.10.11
+  code_builder: ^3.5.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

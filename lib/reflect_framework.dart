@@ -1,17 +1,19 @@
+import 'package:reflect_framework/reflect_generated.dart';
 import 'package:reflect_framework/reflect_meta_temp.dart';
 
-class ReflectFramework {
-  static final ReflectFramework _reflectFramework =
-      ReflectFramework._internal();
-  final Reflection reflection=Reflection();
-  ReflectApplication application;
+// class ReflectFramework {
+//   //For documentation only
+// }
 
-  ///Singleton
-  factory ReflectFramework() {
-    return _reflectFramework;
-  }
+class ReflectFrameworkInfo {
 
-  ReflectFramework._internal();
+  final ApplicationInfo application= ApplicationInfo();
+
+  final List<ServiceObjectInfo> serviceObjects = [
+    ServiceObjectInfo(title:"Login"),
+    ServiceObjectInfo(title:"Orders")
+  ];
+
 }
 
 ///* Provides name of application

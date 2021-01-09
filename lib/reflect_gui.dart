@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reflect_framework/reflect_annotations.dart';
+import 'package:reflect_framework/reflect_framework.dart';
+import 'package:reflect_framework/reflect_generated.dart';
 import 'package:reflect_framework/reflect_gui_tab.dart' as ReflectTabs;
 import 'package:reflect_framework/reflect_gui_tab.dart';
 import 'package:reflect_framework/reflect_localizations.dart';
 import 'package:reflect_framework/reflect_meta_temp.dart';
-import 'package:reflect_framework/reflect_application.dart';
 
 const kTabletBreakpoint = 720.0;
 const kDesktopBreakpoint = 1200.0;
@@ -21,7 +22,7 @@ abstract class ReflectGuiApplication extends StatelessWidget
   Widget build(BuildContext context) {
     return MultiProvider(providers: [
       ChangeNotifierProvider(create: (_) => Tabs()),
-      Provider(create: (_) => ReflectFramework()),
+      Provider(create: (_) => ReflectFrameworkInfo()),
     ], child: ReflectMaterialApp(reflectGuiApplication: this));
   }
 
@@ -49,10 +50,7 @@ class ReflectMaterialApp extends StatelessWidget {
     return MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      title: Provider.of<ReflectFramework>(context)
-          .reflection
-          .applicationInfo
-          .title,
+      title: Provider.of<ReflectFrameworkInfo>(context).application.title,
       theme: reflectGuiApplication.lightTheme,
       darkTheme: reflectGuiApplication.darkTheme,
       home: Home(),
@@ -86,7 +84,7 @@ class ApplicationTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     Tabs tabs = Provider.of<Tabs>(context);
     String appTitle =
-        Provider.of<ReflectFramework>(context).reflection.applicationInfo.title;
+        Provider.of<ReflectFrameworkInfo>(context).application.title;
     return LayoutBuilder(builder: (_, dimens) {
       if (tabs.isEmpty) {
         return Text(appTitle);
@@ -275,15 +273,16 @@ class MainMenu extends StatelessWidget {
   }
 
   List<Widget> createChildren(BuildContext context) {
-    Reflection reflection = Provider.of<ReflectFramework>(context).reflection;
+    List<ServiceObjectInfo> serviceObjectsInfo =
+        Provider.of<ReflectFrameworkInfo>(context).serviceObjects;
 
     List<Widget> children = List();
 
     if (isDrawerMenu) {
-      children.add(createDrawerHeader(reflection, context));
+      children.add(createDrawerHeader(context));
     }
 
-    for (ServiceObjectInfo serviceObjectInfo in reflection.serviveObjectInfos) {
+    for (ServiceObjectInfo serviceObjectInfo in serviceObjectsInfo) {
       children.add(createServiceObjectTile(serviceObjectInfo));
       for (ActionMethodInfo actionMethodInfo
           in serviceObjectInfo.mainMenuItems) {
@@ -293,11 +292,12 @@ class MainMenu extends StatelessWidget {
     return children;
   }
 
-  Container createDrawerHeader(Reflection reflection, BuildContext context) {
+  Container createDrawerHeader(BuildContext context) {
     return Container(
       height: 88.0, //TODO get from AppBar
       child: DrawerHeader(
-        child: Text(reflection.applicationInfo.title,
+        child: Text(
+            Provider.of<ReflectFrameworkInfo>(context).application.title,
             style: Theme.of(context).primaryTextTheme.headline6),
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor,
@@ -363,8 +363,8 @@ class ApplicationTitleTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ApplicationInfo applicationInfo =
-        Provider.of<ReflectFramework>(context).reflection.applicationInfo;
-    var titleImagePath = applicationInfo.titleImagePath;
+        Provider.of<ReflectFrameworkInfo>(context).application;
+    var titleImagePath = applicationInfo.imagePath;
     if (titleImagePath != null) {
       return Center(child: Image.asset(titleImagePath));
     } else {

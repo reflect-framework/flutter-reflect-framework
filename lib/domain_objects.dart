@@ -1,5 +1,5 @@
 import 'package:reflect_framework/reflect_annotations.dart';
-import 'package:reflect_framework/reflect_meta_service_object.dart';
+import 'package:reflect_framework/reflect_info_service.dart';
 
 class Payment {
   Address address;

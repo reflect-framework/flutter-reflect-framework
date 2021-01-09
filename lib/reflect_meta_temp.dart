@@ -5,22 +5,6 @@ import 'package:reflect_framework/reflect_gui_tab_form.dart';
 import 'package:reflect_framework/reflect_gui_tab_table.dart';
 import 'package:reflect_framework/reflect_gui_tab.dart';
 
-class Reflection {
-  final ApplicationInfo applicationInfo = ApplicationInfo();
-  final List<ServiceObjectInfo> serviveObjectInfos = [
-    ServiceObjectInfo(title:"Login"),
-    ServiceObjectInfo(title:"Orders")
-  ];
-}
-
-class ApplicationInfo {
-  String get title {
-    return "Application title"; //TODO get using reflection of [ReflectApplication] or https://pub.dev/packages/package_info
-  }
-
-  String get titleImagePath => 'assets/my_first_app.png';
-}
-
 class ServiceObjectInfo {
   final String title ;
 

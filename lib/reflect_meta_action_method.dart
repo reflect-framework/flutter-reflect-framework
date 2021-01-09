@@ -1,5 +1,5 @@
 import 'package:reflect_framework/reflect_meta_action_method_pre_processor_context.dart';
-import 'package:reflect_framework/reflect_meta_service_object.dart';
+import 'package:reflect_framework/reflect_info_service.dart';
 
 /// ## [ActionMethod]
 ///
@@ -48,7 +48,7 @@ abstract class ActionMethodInfo {
 
 /// [ServiceObjectActionMethod]s are displayed on the main menu of an [ReflectGuiApplication] or are commands that can be accessed from the outside world in other type of [ReflectApplications]
 abstract class ServiceObjectActionMethodInfo extends ActionMethodInfo {
-  ServiceObjectInfo get serviceObjectInfo;
+  ServiceClassInfo get serviceObjectInfo;
 }
 
 /// TODO explain what it does

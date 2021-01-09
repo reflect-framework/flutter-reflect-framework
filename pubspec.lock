@@ -128,7 +128,7 @@ packages:
     source: hosted
     version: "1.1.0-nullsafety.1"
   code_builder:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: code_builder
       url: "https://pub.dartlang.org"
@@ -274,7 +274,7 @@ packages:
     source: hosted
     version: "3.1.4"
   intl:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: intl
       url: "https://pub.dartlang.org"

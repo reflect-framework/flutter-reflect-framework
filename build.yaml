@@ -1,28 +1,39 @@
 targets:
   $default:
     builders:
-      reflect_framework|reflect_info_builder:
+      reflect_framework|reflect_json_builder:
         generate_for:
           - lib/**.dart
         enabled: True
-      reflect_framework|reflect_info_combining_builder:
+      reflect_framework|combining_reflect_json_builder:
+        enabled: True
+      reflect_framework|reflect_info_builder:
         enabled: True
 
 builders:
-  reflect_info_builder:
+  reflect_json_builder:
     import: 'package:reflect_framework/reflect_builder_factory.dart'
-    builder_factories: ['reflectInfoJsonBuilder']
+    builder_factories: ['reflectJsonBuilder']
     build_extensions:
       .dart:
         - .reflect_info.json
     build_to: source
     auto_apply: root_package
-    runs_before: [reflect_info_combining_builder]
-  reflect_info_combining_builder:
+    runs_before: [reflect_framework|combining_reflect_json_builder]
+  combining_reflect_json_builder:
     import: 'package:reflect_framework/reflect_builder_factory.dart'
-    builder_factories: ['combiningReflectInfoBuilder']
+    builder_factories: ['combiningReflectJsonBuilder']
     build_extensions:
-      .dart:
-        - .reflect_info.json
+      $lib$:
+        - .combined.json
+    build_to: source
+    auto_apply: root_package
+    runs_before: [reflect_framework|reflect_info_builder]
+  reflect_info_builder:
+    import: 'package:reflect_framework/reflect_builder_factory.dart'
+    builder_factories: ['reflectInfoBuilder']
+    build_extensions:
+      .combined.json:
+        - .dart
     build_to: source
     auto_apply: root_package
