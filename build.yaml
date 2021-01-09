@@ -17,7 +17,7 @@ builders:
     build_extensions:
       .dart:
         - .reflect_info.json
-    build_to: source
+    build_to: cache
     auto_apply: root_package
     runs_before: [reflect_framework|combining_reflect_json_builder]
   combining_reflect_json_builder:
@@ -26,7 +26,7 @@ builders:
     build_extensions:
       $lib$:
         - .combined.json
-    build_to: source
+    build_to: cache
     auto_apply: root_package
     runs_before: [reflect_framework|reflect_info_builder]
   reflect_info_builder:
