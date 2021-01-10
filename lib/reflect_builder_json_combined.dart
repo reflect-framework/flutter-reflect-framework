@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:build/build.dart';
 import 'package:glob/glob.dart';
@@ -25,8 +24,9 @@ class CombiningReflectJsonBuilder implements Builder {
 
       var encoder = new JsonEncoder.withIndent("     ");
       String formattedJson = encoder.convert(combinedReflectInfo);
+      var destination = AssetId(buildStep.inputId.package, ReflectJson.combinedFilePath);
       buildStep.writeAsString(
-          AssetId(buildStep.inputId.package, ReflectJson.combinedFilePath),
+          destination,
           formattedJson);
     } catch (e, stacktrace) {
       print(e);
