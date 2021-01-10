@@ -12,15 +12,8 @@ class ApplicationInfoCode {
             ..name = 'ApplicationInfo'
             //..extend = refer('ClassInfo','package:reflect_framework/reflect_info_service.dart')
             ..methods.add(ApplicationDisplayName.createFor(reflectJson))
-            ..methods
-                .add(Method((b) => b //TODO separate class with documentation
-                  ..name = 'imagePath'
-                  ..type = MethodType.getter
-                  ..returns = refer('String')
-                  ..body = const Code("return 'assets/my_first_app.png';"))))
-          // TODO get from a RefelctApplication class annotation or  method
-
-          ,
+            ..methods.add(ApplicationImagePath.createFor(reflectJson))
+          )
         ]));
 
     //TODO create class DartCode (with toString method?) and let this class extend it
@@ -32,7 +25,8 @@ class ApplicationInfoCode {
   }
 }
 
-/// TODO DartDoc explaining the application title
+
+/// TODO create Generic DisplayName class with DartDoc and implement it here
 class ApplicationDisplayName {
   static Method createFor(ReflectJson reflectJson) {
     // TODO get from a RefelctApplication class
@@ -43,5 +37,20 @@ class ApplicationDisplayName {
       ..type = MethodType.getter
       ..returns = refer('String')
       ..body = const Code("return 'My first app';"));
+  }
+}
+
+
+/// TODO create Generic ImagePath class with DartDoc and implement it here
+class ApplicationImagePath {
+
+  static Method createFor(ReflectJson reflectJson) {
+    // TODO get from a RefelctApplication class annotation or  method
+
+    return Method((b) => b //TODO separate class with documentation
+      ..name = 'imagePath'
+      ..type = MethodType.getter
+      ..returns = refer('String')
+      ..body = const Code("return 'assets/my_first_app.png';"));
   }
 }
