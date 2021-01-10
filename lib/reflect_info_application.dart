@@ -1,5 +1,6 @@
 import 'package:code_builder/code_builder.dart';
-import 'package:reflect_framework/reflect_info_json.dart';
+import 'reflect_info_behavioural.dart';
+import 'reflect_info_json.dart';
 
 
 /// The [ReflectFramework] creates an [ApplicationInfo] class (with [ApplicationInfoCodeFactory]).
@@ -14,33 +15,18 @@ class ApplicationInfoCodeFactory {
     return Class((b) => b
       ..name = 'ApplicationInfo'
     //..extend = refer('ClassInfo','package:reflect_framework/reflect_info_service.dart')
-      ..methods.add(ApplicationDisplayName.createFor(applicationClassJson))
+      ..methods.add(DisplayName.createMethod(applicationClassJson.type))
       ..methods.add(ApplicationImagePath.createFor(applicationClassJson))
     );
   }
 
-  static findApplicationClassJson(ReflectJson reflectJson) {
-    //TODO
+  static ClassJson findApplicationClassJson(ReflectJson reflectJson) {
+    //TODO find classes that implement or extend Reflect(Gui)Application, throw error when more or less than 1, otherwise return found
+    return reflectJson.classes.firstWhere((c) => c.type.name=='MyFirstApp');
   }
 }
 
-
-/// TODO create Generic DisplayName class with DartDoc and implement it here
-class ApplicationDisplayName {
-  static Method createFor(ClassJson applicationClassJson) {
-    // TODO get from a RefelctApplication class
-    // TODO make it translatable with @Translation notation and Translations
-
-    return Method((b) => b
-      ..name = 'displayName'
-      ..type = MethodType.getter
-      ..returns = refer('String')
-      ..body = const Code("return 'My first app';"));
-  }
-}
-
-
-/// TODO create Generic ImagePath class with DartDoc and implement it here
+/// TODO create Generic ImagePath class with DartDoc and implement it here (See [DisplayName.createMethod(typeJson)])
 class ApplicationImagePath {
 
   static Method createFor(ClassJson applicationClassJson) {

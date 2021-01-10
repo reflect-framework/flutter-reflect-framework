@@ -3,11 +3,11 @@ import 'reflect_gui.dart';
 
 void main() {
   runApp(
-    MyApp()
+    MyFirstApp()
   );
 }
 
-class MyApp extends ReflectGuiApplication {
+class MyFirstApp extends ReflectGuiApplication {
 
  @override
  ThemeData get lightTheme => ThemeData(primarySwatch: Colors.red, brightness: Brightness.light);

@@ -21,7 +21,8 @@ main() async {
   _createReflectGeneratedLibFile(json);
 }
 
-const reflectGeneratedPath = 'lib/reflect_generated.dart';
+const reflectGeneratedFile = 'reflect_generated.dart';
+const reflectGeneratedPath = 'lib/'+reflectGeneratedFile;
 
 void _createReflectGeneratedLibFile(json) {
   File file = File(reflectGeneratedPath);
@@ -59,7 +60,7 @@ ReflectJson _readReflectInfoJsonFile(json)  {
 class ReflectInfoBuilder implements Builder {
   @override
   Map<String, List<String>> get buildExtensions => {
-        '.combined.json': ['/../reflect_generated.dart']
+        '.combined.json': ['/../'+reflectGeneratedFile]
       };
 
   @override

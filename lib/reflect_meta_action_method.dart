@@ -1,3 +1,5 @@
+import 'package:reflect_framework/reflect_documentation.dart';
+import 'package:reflect_framework/reflect_framework.dart';
 import 'package:reflect_framework/reflect_meta_action_method_pre_processor_context.dart';
 import 'package:reflect_framework/reflect_info_service.dart';
 
@@ -14,9 +16,7 @@ import 'package:reflect_framework/reflect_info_service.dart';
 /// - and there is a [ActionMethodProcessor] that can process the method result.
 ///
 
-class ActionMethod {
-  //For documentation only
-}
+abstract class ActionMethod  extends ConceptDocumentation{}
 
 /// TODO explain what it does
 ///
