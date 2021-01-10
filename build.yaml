@@ -34,6 +34,6 @@ builders:
     builder_factories: ['reflectInfoBuilder']
     build_extensions:
       .combined.json:
-        - .dart
+        - lib/reflect_generated.dart
     build_to: source
     auto_apply: root_package
