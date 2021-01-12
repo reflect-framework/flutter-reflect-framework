@@ -1,6 +1,7 @@
 name: reflect_framework
-description: See https://github.com/reflect-framework/flutter-reflect-framework
-
+homepage: https://github.com/reflect-framework/flutter-reflect-framework
+authors:
+  - Nils ten Hoeve
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
 # followed by an optional build number separated by a +.
@@ -28,7 +29,7 @@ dependencies:
   provider: ^4.3.2+3
   flutter_spinkit: ^4.1.2+1
   http: ^0.12.2
-  flutter_typeahead: ^1.9.3
+  flutter_typeahead: ^2.0.0
   build: ^1.6.1
   source_gen: ^0.9.10+1
 

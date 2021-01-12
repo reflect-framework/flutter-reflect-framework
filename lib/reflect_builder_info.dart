@@ -6,7 +6,6 @@ import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:reflect_framework/reflect_info_json.dart';
-
 import 'reflect_info_application.dart';
 
 /// using main because that way we can simply debug:
@@ -22,7 +21,7 @@ main() async {
 }
 
 const reflectGeneratedFile = 'reflect_generated.dart';
-const reflectGeneratedPath = 'lib/'+reflectGeneratedFile;
+const reflectGeneratedPath = 'lib/' + reflectGeneratedFile;
 
 void _createReflectGeneratedLibFile(json) {
   File file = File(reflectGeneratedPath);
@@ -30,15 +29,16 @@ void _createReflectGeneratedLibFile(json) {
   file.writeAsString(dartCode);
 }
 
-String _createReflectGeneratedLibCode(json)  {
-  Library reflectGeneratedLib =  _createReflectGeneratedLib(json);
+String _createReflectGeneratedLibCode(json) {
+  Library reflectGeneratedLib = _createReflectGeneratedLib(json);
   final emitter = DartEmitter(Allocator.simplePrefixing());
-  String dartCode =  DartFormatter().format('${reflectGeneratedLib.accept(emitter)}');
+  String dartCode =
+      DartFormatter().format('${reflectGeneratedLib.accept(emitter)}');
   return dartCode;
 }
 
-Library _createReflectGeneratedLib(json)  {
-  ReflectJson reflectJson =  _readReflectInfoJsonFile(json);
+Library _createReflectGeneratedLib(json) {
+  ReflectJson reflectJson = _readReflectInfoJsonFile(json);
   final generatedLib = Library(
       (b) => b.body.addAll([ApplicationInfoCodeFactory(reflectJson).create()]));
   return generatedLib;
@@ -52,7 +52,7 @@ Library _createReflectGeneratedLib(json)  {
   // List<DomainClassInfoCode> domainClassCodes=serviceClasses.map((s) => DomainClassInfoCode(s));
 }
 
-ReflectJson _readReflectInfoJsonFile(json)  {
+ReflectJson _readReflectInfoJsonFile(json) {
   return ReflectJson.fromJson(json);
 }
 
@@ -60,17 +60,15 @@ ReflectJson _readReflectInfoJsonFile(json)  {
 class ReflectInfoBuilder implements Builder {
   @override
   Map<String, List<String>> get buildExtensions => {
-        '.combined.json': ['/../'+reflectGeneratedFile]
+        '.combined.json': ['/../' + reflectGeneratedFile]
       };
-
-  @override
-
 
   @override
   FutureOr<void> build(BuildStep buildStep) async {
     try {
       String jsonString = await buildStep.readAsString(buildStep.inputId);
       var json = jsonDecode(jsonString);
+
       String dartCode = _createReflectGeneratedLibCode(json);
       AssetId destination =
           AssetId(buildStep.inputId.package, reflectGeneratedPath);
@@ -79,4 +77,6 @@ class ReflectInfoBuilder implements Builder {
       print('$exception\n$stacktrace');
     }
   }
+
+
 }
