@@ -22,7 +22,7 @@ class ApplicationInfoCodeFactory {
           //..extend = refer('ClassInfo','package:reflect_framework/reflect_info_service.dart')
           ..methods.add(DisplayName.createMethod(applicationClassJson.type))
           ..methods
-              .add(ImagePath.createMethod(applicationClassJson, pubSpecYaml))
+              .add(TitleImage.createMethod(applicationClassJson, pubSpecYaml))
         //TODO add version using pubSpecYaml
         //TODO add home page using pubSpecYaml?
         //TODO add dependencies using pubSpecYaml?
@@ -54,31 +54,26 @@ class ApplicationInfoCodeFactory {
 ///   * Note that you can have add multiple image files for different resolutions and dark or light themes, see https://flutter.dev/docs/development/ui/assets-and-images)
 /// * You have defined an asset with the path to your title image file in the flutter section of the pubspec.yaml file:
 ///     assets:
-///     - assets/my_first_app.png
+///     - assets/my_first_app.png2
 // TODO about page is shown when the title app is long or right clicked
-class ImagePath {
-  //TODO change in TitleImage?
-
+class TitleImage {
   static Method createMethod(ClassJson applicationClassJson, Map pubSpecYaml) {
-    String fileName = ReCase(applicationClassJson.type.name).snakeCase;
-    String foundAsset = _findAssetPath(pubSpecYaml, fileName);
-    // TODO if foundAsset show warning and add alternative (text?) vs (Image)?
-    String code = "return '$foundAsset';";
-
     return Method((b) => b
-      ..name = 'imagePath'
+      ..name = 'titleImage'
       ..type = MethodType.getter
       ..returns = refer('String')
-      ..body = Code(code));
+      ..body = _createCode(applicationClassJson, pubSpecYaml));
   }
 
-  static String _findAssetPath(Map pubSpecYaml, String fileName) {
+  static String _findAssetPath(
+      ClassJson applicationClassJson, Map pubSpecYaml) {
     List<String> assets = _findAssets(pubSpecYaml);
+    String fileName = ReCase(applicationClassJson.type.name).snakeCase;
     RegExp imageAsset = RegExp(
-        '/' + fileName + '\.(jpeg|webp|gif|png|bmp|wbmp)',
+        '/' + fileName + '\.(jpeg|webp|gif|png|bmp|wbmp)\$',
         caseSensitive: false);
     String found =
-        assets.firstWhere((asset) => imageAsset.hasMatch(asset), orElse: null);
+        assets.firstWhere((asset) => imageAsset.hasMatch(asset), orElse: ()=>null);
     return found;
   }
 
@@ -92,5 +87,16 @@ class ImagePath {
       return const [];
     }
     return assets.map((asset) => asset.toString()).toList();
+  }
+
+  static Code _createCode(ClassJson applicationClassJson, Map pubSpecYaml) {
+    String foundAssetPath = _findAssetPath(applicationClassJson, pubSpecYaml);
+    if (foundAssetPath == null) {
+      //Show warning
+      print('No title image found. Please add one.');
+      return Code("return null;");
+    } else {
+      return Code("return '$foundAssetPath';");
+    }
   }
 }

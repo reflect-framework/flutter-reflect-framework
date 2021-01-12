@@ -12,10 +12,10 @@ import 'reflect_info_application.dart';
 /// - Read reflect_info.json
 /// - create dart files
 
-main() async {
-  String jsonString = await File(
+main()  {
+  String jsonString = File(
           'C:/Users/nilsth/AndroidStudioProjects/flutter-reflect-framework/.dart_tool/build/generated/reflect_framework/lib/reflect_info.combined.json')
-      .readAsString();
+      .readAsStringSync();
   var json = jsonDecode(jsonString);
   _createReflectGeneratedLibFile(json);
 }

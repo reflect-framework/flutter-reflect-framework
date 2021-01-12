@@ -364,7 +364,7 @@ class ApplicationTitleTab extends StatelessWidget {
   Widget build(BuildContext context) {
     ApplicationInfo applicationInfo =
         Provider.of<ReflectFrameworkInfo>(context).application;
-    var titleImagePath = applicationInfo.imagePath;
+    var titleImagePath = applicationInfo.titleImage;
     if (titleImagePath != null) {
       return Center(child: Image.asset(titleImagePath));
     } else {
