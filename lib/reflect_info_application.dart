@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:code_builder/code_builder.dart';
 import 'package:recase/recase.dart';
 import 'package:yaml/yaml.dart';
-
 import 'reflect_info_behavioural.dart';
 import 'reflect_info_json.dart';
 
@@ -23,10 +22,6 @@ class ApplicationInfoCodeFactory {
           ..methods.add(DisplayName.createMethod(applicationClassJson.type))
           ..methods
               .add(TitleImage.createMethod(applicationClassJson, pubSpecYaml))
-        //TODO add version using pubSpecYaml
-        //TODO add home page using pubSpecYaml?
-        //TODO add dependencies using pubSpecYaml?
-        //TODO add about page when clicking splashImage?
         );
   }
 
@@ -54,8 +49,7 @@ class ApplicationInfoCodeFactory {
 ///   * Note that you can have add multiple image files for different resolutions and dark or light themes, see https://flutter.dev/docs/development/ui/assets-and-images)
 /// * You have defined an asset with the path to your title image file in the flutter section of the pubspec.yaml file:
 ///     assets:
-///     - assets/my_first_app.png2
-// TODO about page is shown when the title app is long or right clicked
+///     - assets/my_first_app.png
 class TitleImage {
   static Method createMethod(ClassJson applicationClassJson, Map pubSpecYaml) {
     return Method((b) => b
