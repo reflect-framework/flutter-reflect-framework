@@ -1,8 +1,9 @@
-import 'dart:io';
+import 'dart:io' as Io;
 
 import 'package:code_builder/code_builder.dart';
 import 'package:recase/recase.dart';
 import 'package:yaml/yaml.dart';
+
 import 'reflect_info_behavioural.dart';
 import 'reflect_info_json.dart';
 
@@ -15,26 +16,92 @@ class ApplicationInfoCodeFactory {
       : applicationClassJson = findApplicationClassJson(reflectJson);
 
   Class create() {
-    Map pubSpecYaml = _readPubSpecYaml();
+    PubSpecYaml pubSpecYaml = PubSpecYaml();
     return Class((b) => b
-          ..name = 'ApplicationInfo'
-          //..extend = refer('ClassInfo','package:reflect_framework/reflect_info_service.dart')
-          ..methods.add(DisplayName.createMethod(applicationClassJson.type))
-          ..methods
-              .add(TitleImage.createMethod(applicationClassJson, pubSpecYaml))
-        );
-  }
-
-  Map _readPubSpecYaml() {
-    File f = new File("pubspec.yaml");
-    String yamlString = f.readAsStringSync();
-    Map yaml = loadYaml(yamlString);
-    return yaml;
+      ..name = 'ApplicationInfo'
+      //..extend = refer('ClassInfo','package:reflect_framework/reflect_info_service.dart')
+      ..methods.add(DisplayName.createMethod(applicationClassJson.type))
+      ..methods.add(
+          TitleImage.createMethod(applicationClassJson, pubSpecYaml.assets))
+      ..methods.add(pubSpecYaml.createStringGetterMethod('description'))
+      ..methods.add(pubSpecYaml.createStringGetterMethod('homePage'))
+      ..methods.add(pubSpecYaml.createStringGetterMethod('documentation'))
+      ..methods.add(pubSpecYaml.createAuthorsGetterMethod()));
   }
 
   static ClassJson findApplicationClassJson(ReflectJson reflectJson) {
     //TODO find classes that implement or extend Reflect(Gui)Application, throw error when more or less than 1, otherwise return found
     return reflectJson.classes.firstWhere((c) => c.type.name == 'MyFirstApp');
+  }
+}
+
+class PubSpecYaml {
+  final Map yaml;
+
+  PubSpecYaml() : yaml = _read();
+
+  List<String> get authors {
+    YamlList authors = yaml['authors'];
+    if (authors == null) {
+      return const [];
+    }
+    return authors.map((asset) => asset.toString()).toList();
+  }
+
+  List<String> get assets {
+    var flutter = yaml['flutter'];
+    if (flutter == null) {
+      return const [];
+    }
+    YamlList assets = flutter['assets'];
+    if (assets == null) {
+      return const [];
+    }
+    return assets.map((asset) => asset.toString()).toList();
+  }
+
+  static Map _read() {
+    Io.File yamlFile = Io.File("pubspec.yaml");
+    String yamlString = yamlFile.readAsStringSync();
+    Map yaml = loadYaml(yamlString);
+    return yaml;
+  }
+
+  Method createStringGetterMethod(String name) {
+    return Method((b) {
+      b
+        ..name = name
+        ..type = MethodType.getter
+        ..returns = refer('String')
+        ..body = _createReturnStringCode(name);
+    });
+  }
+
+  Code _createReturnStringCode(String name) {
+    var value = yaml[name.toLowerCase()];
+    if (value == null) {
+      return Code("return null;");
+    } else {
+      return Code("return '$value';");
+    }
+  }
+
+  Method createAuthorsGetterMethod() {
+    return Method((b) {
+      b
+        ..name = 'authors'
+        ..type = MethodType.getter
+        ..returns = refer('List<String>')
+        ..body = _createAuthorsCode();
+    });
+  }
+
+  Code _createAuthorsCode() {
+    if (authors == null) {
+      return Code("return null;");
+    } else {
+      return Code("return ${authors.map((s) => "'$s'").toList().toString()};");
+    }
   }
 }
 
@@ -51,43 +118,32 @@ class ApplicationInfoCodeFactory {
 ///     assets:
 ///     - assets/my_first_app.png
 class TitleImage {
-  static Method createMethod(ClassJson applicationClassJson, Map pubSpecYaml) {
+  static Method createMethod(
+      ClassJson applicationClassJson, List<String> assets) {
     return Method((b) => b
       ..name = 'titleImage'
       ..type = MethodType.getter
       ..returns = refer('String')
-      ..body = _createCode(applicationClassJson, pubSpecYaml));
+      ..body = _createCode(applicationClassJson, assets));
   }
 
-  static String _findAssetPath(
-      ClassJson applicationClassJson, Map pubSpecYaml) {
-    List<String> assets = _findAssets(pubSpecYaml);
-    String fileName = ReCase(applicationClassJson.type.name).snakeCase;
+  static String _findAssetPath(List<String> assets, String fileName) {
+    // List<String> assets = _findAssets(pubSpecYaml);
     RegExp imageAsset = RegExp(
         '/' + fileName + '\.(jpeg|webp|gif|png|bmp|wbmp)\$',
         caseSensitive: false);
-    String found =
-        assets.firstWhere((asset) => imageAsset.hasMatch(asset), orElse: ()=>null);
+    String found = assets.firstWhere((asset) => imageAsset.hasMatch(asset),
+        orElse: () => null);
     return found;
   }
 
-  static List<String> _findAssets(Map pubSpecYaml) {
-    var flutter = pubSpecYaml['flutter'];
-    if (flutter == null) {
-      return const [];
-    }
-    YamlList assets = flutter['assets'];
-    if (assets == null) {
-      return const [];
-    }
-    return assets.map((asset) => asset.toString()).toList();
-  }
-
-  static Code _createCode(ClassJson applicationClassJson, Map pubSpecYaml) {
-    String foundAssetPath = _findAssetPath(applicationClassJson, pubSpecYaml);
+  static Code _createCode(ClassJson applicationClassJson, List<String> assets) {
+    String fileName = ReCase(applicationClassJson.type.name).snakeCase;
+    String foundAssetPath = _findAssetPath(assets, fileName);
     if (foundAssetPath == null) {
       //Show warning
-      print('No title image found. Please add one.');
+      print(
+          'No title image found. Please define a $fileName asset in pubspec.yaml.');
       return Code("return null;");
     } else {
       return Code("return '$foundAssetPath';");
