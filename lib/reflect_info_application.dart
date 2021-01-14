@@ -29,8 +29,26 @@ class ApplicationInfoFactory {
   }
 
   static ClassJson findApplicationClassJson(ReflectJson reflectJson) {
-    //TODO find classes that implement or extend Reflect(Gui)Application, throw error when more or less than 1, otherwise return found
-    return reflectJson.classes.firstWhere((c) => c.type.name == 'MyFirstApp');
+    const name = 'ReflectGuiApplication';
+    const lib = '/reflect_framework/lib/reflect_gui.dart';
+    List<ClassJson> reflectGuiApplications = reflectJson.classes
+        .where((c) =>
+            c.extending != null &&
+            c.extending.name == name &&
+            c.extending.library == lib)
+        .toList();
+
+    if (reflectGuiApplications.length == 0) {
+      throw Exception(
+          "One class in your source must extend: $name from library: $lib");
+    }
+    if (reflectGuiApplications.length > 1) {
+      List<String> reflectApplicationNames =
+          reflectGuiApplications.map((c) => c.type.name).toList();
+      throw Exception(
+          "Only one class in your source code may extend: $name. Found: $reflectApplicationNames");
+    }
+    return reflectGuiApplications.first;
   }
 }
 
