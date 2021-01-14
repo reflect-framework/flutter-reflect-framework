@@ -42,6 +42,7 @@ abstract class ServiceClassInfo  extends ClassInfo {
 
 
   /// same (cached) instance of the [ServiceObject]
+  /// e.g. final ProductService serviceObject=productServiceFactory();//or ProductService()
   Object get serviceObject;
 
   /// If the [ServiceObject] is accessible (e.g. visible in the menu's)

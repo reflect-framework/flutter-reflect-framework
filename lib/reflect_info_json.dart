@@ -32,7 +32,7 @@ class ReflectJson {
   //TODO add enums (with texts)
   //TODO add TranslatableTextAnnotations
 
-    ReflectJson.fromLibrary(LibraryReader library)
+  ReflectJson.fromLibrary(LibraryReader library)
       : this.functions = _createFunctions(library),
         this.classes = _createClasses(library);
 
@@ -52,12 +52,13 @@ class ReflectJson {
 
   static const libraryExtension = '.reflect_info.json';
   static const combinedExtension = '.combined.json';
-  static const combinedFileName = 'reflect_info'+combinedExtension;
-  static const combinedFilePath = 'lib/'+combinedFileName;
+  static const combinedFileName = 'reflect_info' + combinedExtension;
+  static const combinedFilePath = 'lib/' + combinedFileName;
 
   Map<String, dynamic> toJson() => {
-        if (functions!=null && functions.isNotEmpty) functionsAttribute: functions,
-        if (classes!=null && classes.isNotEmpty) classesAttribute: classes,
+        if (functions != null && functions.isNotEmpty)
+          functionsAttribute: functions,
+        if (classes != null && classes.isNotEmpty) classesAttribute: classes,
       };
 
   static List<ClassJson> _createClasses(LibraryReader library) {
@@ -143,36 +144,43 @@ class ReflectJson {
     classes.addAll(reflectInfo.classes);
   }
 
-  // List<ExecutableJsonInfo> findActionMethodPreProcessorFunctions() {}
-  //
-  // List<ExecutableJsonInfo> findActionMethodProcessorFunctions() {}
-  //
-  // List<ClassJsonInfo> findPotentialServiceClasses(List<ExecutableJsonInfo> preProcessors, List<ExecutableJsonInfo> processors) {}
-  //
-  // List<ClassJsonInfo> findPotentialDomainClasses(List<ClassJsonInfo> serviceClasses) {}
-
+// List<ExecutableJsonInfo> findActionMethodPreProcessorFunctions() {}
+//
+// List<ExecutableJsonInfo> findActionMethodProcessorFunctions() {}
+//
+// List<ClassJsonInfo> findPotentialServiceClasses(List<ExecutableJsonInfo> preProcessors, List<ExecutableJsonInfo> processors) {}
+//
+// List<ClassJsonInfo> findPotentialDomainClasses(List<ClassJsonInfo> serviceClasses) {}
 
 }
 
 class ClassJson {
   static const typeAttribute = 'type';
+  static const extendingAttribute = 'extending';
+  static const mixinsAttribute = 'mixins';
   static const annotationsAttribute = 'annotations';
   static const methodsAttribute = 'methods';
   static const propertiesAttribute = 'properties';
 
   final TypeJson type;
+  final TypeJson extending;
+  final List<TypeJson> mixins;
   final List<AnnotationJson> annotations;
   final List<ExecutableJson> methods;
   final List<PropertyJson> properties;
 
   ClassJson.fromElement(ClassElement element)
       : type = TypeJson.fromElement(element),
+        extending = _createExtending(element),
+        mixins = _createMixins(element),
         annotations = _createAnnotations(element),
         methods = _createMethods(element),
         properties = _createProperties(element);
 
   ClassJson.fromElementWithTranslationAnnotationsOnly(ClassElement element)
       : type = TypeJson.fromElement(element),
+        extending = null,
+        mixins = [],
         annotations =
             _createAnnotations(element, forTranslationAnnotationsOnly: true),
         methods = _createMethodsWithTranslationAnnotationsOnly(element),
@@ -180,6 +188,13 @@ class ClassJson {
 
   ClassJson.fromJson(Map<String, dynamic> json)
       : type = TypeJson.fromJson(json[typeAttribute]),
+        extending = json[extendingAttribute] == null
+            ? null
+            : TypeJson.fromJson(json[extendingAttribute]),
+        mixins = json[mixinsAttribute] == null
+            ? []
+            : List<TypeJson>.from(json[mixinsAttribute]
+                .map((model) => AnnotationJson.fromJson(model))),
         annotations = json[annotationsAttribute] == null
             ? []
             : List<AnnotationJson>.from(json[annotationsAttribute]
@@ -195,10 +210,19 @@ class ClassJson {
 
   Map<String, dynamic> toJson() => {
         typeAttribute: type,
-        if (annotations!=null &&  annotations.isNotEmpty) annotationsAttribute: annotations,
-        if (methods!=null &&  methods.isNotEmpty) methodsAttribute: methods,
-        if (properties!=null && properties.isNotEmpty) propertiesAttribute: properties
+        if (extending != null) extendingAttribute: extending,
+        if (mixins != null && mixins.isNotEmpty) mixinsAttribute: mixins,
+        if (annotations != null && annotations.isNotEmpty)
+          annotationsAttribute: annotations,
+        if (methods != null && methods.isNotEmpty) methodsAttribute: methods,
+        if (properties != null && properties.isNotEmpty)
+          propertiesAttribute: properties
       };
+
+  static TypeJson _createExtending(ClassElement element) =>
+      (element.supertype.element.name == 'Object')
+          ? null
+          : TypeJson.fromElement(element.supertype.element);
 
   static List<ExecutableJson> _createMethods(ClassElement classElement) {
     return classElement.methods
@@ -274,6 +298,11 @@ class ClassJson {
     }
     return properties;
   }
+
+  static List<TypeJson> _createMixins(ClassElement element) {
+    return List<TypeJson>.from(
+        element.mixins.map((i) => TypeJson.fromElement(i.element)));
+  }
 }
 
 class TypeJson {
@@ -306,7 +335,8 @@ class TypeJson {
   Map<String, dynamic> toJson() => {
         libraryAttribute: library,
         nameAttribute: name,
-        if (genericTypes!=null &&  genericTypes.isNotEmpty) genericTypesAttribute: genericTypes
+        if (genericTypes != null && genericTypes.isNotEmpty)
+          genericTypesAttribute: genericTypes
       };
 
   static List<TypeJson> _createGenericTypes(DartType dartType) {
@@ -432,8 +462,10 @@ class ExecutableJson {
   Map<String, dynamic> toJson() => {
         nameAttribute: name,
         if (returnType != null) returnTypeAttribute: returnType,
-        if (parameterTypes!=null &&  parameterTypes.isNotEmpty) parameterTypesAttribute: parameterTypes,
-        if (annotations!=null &&  annotations.isNotEmpty) annotationsAttribute: annotations
+        if (parameterTypes != null && parameterTypes.isNotEmpty)
+          parameterTypesAttribute: parameterTypes,
+        if (annotations != null && annotations.isNotEmpty)
+          annotationsAttribute: annotations
       };
 
   static List<TypeJson> _createParameterTypes(
@@ -496,7 +528,8 @@ class PropertyJson {
         nameAttribute: name,
         hasSetterAttribute: hasSetter,
         typeAttribute: type,
-        if (annotations!=null &&  annotations.isNotEmpty) annotationsAttribute: annotations
+        if (annotations != null && annotations.isNotEmpty)
+          annotationsAttribute: annotations
       };
 
   static List<AnnotationJson> _createAnnotationsFrom2Elements(

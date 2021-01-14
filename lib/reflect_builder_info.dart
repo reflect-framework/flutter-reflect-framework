@@ -6,13 +6,14 @@ import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:reflect_framework/reflect_info_json.dart';
+
 import 'reflect_info_application.dart';
 
 /// using main because that way we can simply debug:
 /// - Read reflect_info.json
 /// - create dart files
 
-main()  {
+main() {
   String jsonString = File(
           'C:/Users/nilsth/AndroidStudioProjects/flutter-reflect-framework/.dart_tool/build/generated/reflect_framework/lib/reflect_info.combined.json')
       .readAsStringSync();
@@ -39,8 +40,8 @@ String _createReflectGeneratedLibCode(json) {
 
 Library _createReflectGeneratedLib(json) {
   ReflectJson reflectJson = _readReflectInfoJsonFile(json);
-  final generatedLib = Library(
-      (b) => b.body.addAll([ApplicationInfoCodeFactory(reflectJson).create()]));
+  final generatedLib = Library((b) =>
+      b.body.addAll([ApplicationInfoFactory(reflectJson).createClass()]));
   return generatedLib;
   // ApplicationInfoCode applicationInfoCode=ApplicationInfoCode(reflectInfo);
   // List<ExecutableInfo> preProcessors=reflectInfo.findActionMethodPreProcessorFunctions();
@@ -77,6 +78,4 @@ class ReflectInfoBuilder implements Builder {
       print('$exception\n$stacktrace');
     }
   }
-
-
 }

@@ -7,15 +7,14 @@ import 'package:yaml/yaml.dart';
 import 'reflect_info_behavioural.dart';
 import 'reflect_info_json.dart';
 
-/// The [ReflectFramework] creates an [ApplicationInfo] class (with [ApplicationInfoCodeFactory]).
-
-class ApplicationInfoCodeFactory {
+/// The [ReflectFramework] [ReflectInfoBuilder] creates an [ApplicationInfo] class using [ApplicationInfoFactory].
+class ApplicationInfoFactory {
   final ClassJson applicationClassJson;
 
-  ApplicationInfoCodeFactory(ReflectJson reflectJson)
+  ApplicationInfoFactory(ReflectJson reflectJson)
       : applicationClassJson = findApplicationClassJson(reflectJson);
 
-  Class create() {
+  Class createClass() {
     PubSpecYaml pubSpecYaml = PubSpecYaml();
     return Class((b) => b
       ..name = 'ApplicationInfo'
